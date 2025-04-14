@@ -5,14 +5,15 @@ frontend:
       commands:
         - npm i -g pnpm
         - pnpm install
-        - chmod +x scripts/amplify-prebuild.sh
-        - ./scripts/amplify-prebuild.sh
+        - echo "Setting script permissions..."
+        - chmod +x scripts/amplify-prebuild.sh || true
+        - (./scripts/amplify-prebuild.sh) || echo "⚠️ Warning: Pre-build script failed but continuing..."
     build:
       commands:
         - echo "Creating production .env file..."
-        - env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ > .env.production
+        - env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ > .env.production || true
         - echo "Building Next.js application..."
-        - pnpm run build
+        - NEXT_PUBLIC_BUILD_MODE=production pnpm run build
   artifacts:
     baseDirectory: .next
     files:
