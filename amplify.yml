@@ -3,22 +3,35 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm i -g pnpm
-        - pnpm install
-        - echo "Setting script permissions..."
-        - "chmod +x scripts/amplify-prebuild.sh || true"
-        - "bash -c './scripts/amplify-prebuild.sh || echo \"⚠️ Warning: Pre-build script failed but continuing...\"'"
+        - export NODE_OPTIONS=--max_old_space_size=8192
+        - echo "Node version $(node -v)"
+        - echo "NPM version $(npm -v)"
+        - npm install -g pnpm
+        - pnpm --version
+        - pnpm config set store-dir ~/.pnpm-store
+        - pnpm install --frozen-lockfile
+        # Setup AWS CLI configuration for S3/CloudFront access
+        - echo "Configuring AWS CLI for media storage access..."
+        - bash -c "scripts/amplify-prebuild.sh || echo \"⚠️ Warning: Pre-build script failed but continuing...\""
+        # Set environment variables for the build
+        - echo "Creating .env file..."
+        - bash -c "env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ -e KABADIGITAL_ > .env.production || true"
     build:
       commands:
-        - echo "Creating production .env file..."
-        - "bash -c 'env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ > .env.production || true'"
-        - echo "Building Next.js application..."
-        - "NEXT_PUBLIC_BUILD_MODE=production NODE_ENV=production pnpm run build"
+        - echo "Building Next.js app..."
+        - npm install -g cross-env
+        - cross-env NODE_ENV=production NEXT_PUBLIC_DEPLOY_ENV=amplify pnpm run build
   artifacts:
     baseDirectory: .next
     files:
       - '**/*'
+    # Also include public directory for static assets
+    secondaryArtifacts:
+      - baseDirectory: public
+        files:
+          - '**/*'
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/* 
+      - .next/cache/**/*
+      - ~/.pnpm-store/**/* 

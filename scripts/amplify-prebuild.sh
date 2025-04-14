@@ -1,67 +1,56 @@
 #!/bin/bash
+set -e
 
-# Amplify pre-build script for verifying environment setup
-# This script runs during the Amplify build process to ensure proper configuration
+echo "Running Amplify prebuild script..."
 
-echo "FinTech Toronto - Amplify Pre-Build Script"
-echo "=========================================="
-
-# Check for required environment variables
-echo "Checking environment variables..."
-
-# Function to warn about missing variables but not fail the build
-check_var() {
-  if [ -z "${!1}" ]; then
-    echo "⚠️ Warning: $1 is not defined. Some features may not work correctly."
-    return 1
-  else
-    return 0
-  fi
-}
-
-# Check all required variables but don't exit on failure
-VARS_OK=true
-
-check_var "NEXT_PUBLIC_SUPABASE_URL" || VARS_OK=false
-check_var "NEXT_PUBLIC_SUPABASE_ANON_KEY" || VARS_OK=false
-check_var "SUPABASE_SERVICE_ROLE_KEY" || VARS_OK=false
-check_var "NEXT_PUBLIC_SANITY_PROJECT_ID" || VARS_OK=false
-
-if [ "$VARS_OK" = false ]; then
-  echo "⚠️ Some environment variables are missing. The application may not function correctly."
-  echo "⚠️ Continuing with build process anyway..."
+# Verify essential environment variables
+echo "Verifying environment variables..."
+if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
+  echo "⚠️ Warning: NEXT_PUBLIC_SUPABASE_URL is not set"
 fi
 
-# Create .env.local file with environment variables
-echo "Creating .env.local file..."
-cat > .env.local << EOL
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-"placeholder-value"}
-NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-"placeholder-value"}
-SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-"placeholder-value"}
+if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+  echo "⚠️ Warning: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set"
+fi
 
-# Sanity Configuration
-NEXT_PUBLIC_SANITY_PROJECT_ID=${NEXT_PUBLIC_SANITY_PROJECT_ID:-"placeholder-value"}
-SANITY_API_TOKEN=${SANITY_API_TOKEN:-"placeholder-value"}
+if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  echo "⚠️ Warning: SUPABASE_SERVICE_ROLE_KEY is not set"
+fi
 
-# Novu Configuration
-NOVU_API_KEY=${NOVU_API_KEY:-"placeholder-value"}
+if [ -z "$NEXT_PUBLIC_SANITY_PROJECT_ID" ]; then
+  echo "⚠️ Warning: NEXT_PUBLIC_SANITY_PROJECT_ID is not set"
+  echo "Using default project ID: zzo0lug0"
+fi
 
-# PostHog Configuration
-NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY:-"placeholder-value"}
-NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST:-"https://us.i.posthog.com"}
+if [ -z "$SANITY_API_TOKEN" ]; then
+  echo "⚠️ Warning: SANITY_API_TOKEN is not set"
+fi
+
+if [ -z "$SANITY_WEBHOOK_SECRET" ]; then
+  echo "⚠️ Warning: SANITY_WEBHOOK_SECRET is not set"
+fi
+
+# Setup AWS CLI configuration if media storage is needed
+if [ ! -z "$KABADIGITAL_ACCESS_KEY_ID" ] && [ ! -z "$KABADIGITAL_SECRET_ACCESS_KEY" ]; then
+  echo "Setting up AWS credentials for media storage..."
+  mkdir -p ~/.aws
+  cat > ~/.aws/credentials << EOL
+[kabadigital]
+aws_access_key_id=${KABADIGITAL_ACCESS_KEY_ID}
+aws_secret_access_key=${KABADIGITAL_SECRET_ACCESS_KEY}
 EOL
+  cat > ~/.aws/config << EOL
+[profile kabadigital]
+region=us-east-1
+output=json
+EOL
+  echo "AWS credentials configured successfully."
+else
+  echo "⚠️ Warning: AWS credentials for media storage not set"
+fi
 
-echo "✅ .env.local file created successfully"
+# Run database migration check
+echo "Checking for pending migrations..."
+node scripts/verify-service-role.js || echo "⚠️ Warning: Service role verification failed, but continuing..."
 
-# Ensure correct pnpm version
-echo "Setting up pnpm..."
-npm i -g pnpm@latest
-
-# Display versions for debugging
-echo "Node version: $(node -v)"
-echo "NPM version: $(npm -v)"
-echo "PNPM version: $(pnpm -v)"
-
-echo "Pre-build script completed successfully"
-exit 0 
+echo "Prebuild script completed." 
