@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/components/auth-provider";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
+import GoogleAnalytics from "@/components/analytics/google-analytics";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -31,13 +32,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={`${inter.className} min-h-screen bg-background font-sans antialiased`}>
+        <GoogleAnalytics />
         <PostHogProvider>
           <AuthProvider>
             <ThemeProvider
