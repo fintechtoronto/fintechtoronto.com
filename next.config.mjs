@@ -1,18 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // For Netlify deployment
+  output: 'export',
+  distDir: 'out',
+  
+  // Make sure no static prerendering (useSearchParams issue)
+  staticPageGenerationTimeout: 0,
+  
   images: {
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
       {
         protocol: 'https',
         hostname: 'cdn.sanity.io',
       },
       {
         protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        hostname: 'api.dicebear.com',
       },
     ],
   },
@@ -20,15 +27,13 @@ const nextConfig = {
     // Add serverActions options
   },
   typescript: {
-    // Set this to false in production to avoid type checking slowing builds
+    // Set this to false in production to ignore TypeScript errors during build
     ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
   eslint: {
-    // Set this to false in production to avoid ESLint checking slowing builds
+    // Set this to false in production to ignore ESLint errors during build
     ignoreDuringBuilds: process.env.NODE_ENV === 'production',
   },
-  // Configure output for Netlify
-  output: 'standalone',
 };
 
 export default nextConfig; 

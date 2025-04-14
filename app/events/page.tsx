@@ -24,6 +24,14 @@ type Event = {
   }
 }
 
+export const revalidate = 3600 // Revalidate every hour
+
+export async function generateStaticParams() {
+  // This function is empty as we don't need params for the main events page
+  // But having it ensures the page is statically generated at build time
+  return [{}]
+}
+
 async function getEvents() {
   return client.fetch(
     groq`*[_type == "event" && dateTime(date) > dateTime(now())] | order(date asc) {

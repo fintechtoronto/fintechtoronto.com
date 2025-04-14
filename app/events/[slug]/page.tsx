@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import RegisterForm from './register-form'
 import EventCountdown from './countdown'
 
+export const revalidate = 3600 // Revalidate every hour
+
 async function getEvent(slug: string) {
   return client.fetch(
     groq`*[_type == "event" && slug.current == $slug][0] {
@@ -24,6 +26,18 @@ async function getEvent(slug: string) {
     }`,
     { slug }
   )
+}
+
+export async function generateStaticParams() {
+  const events = await client.fetch(
+    groq`*[_type == "event" && defined(slug.current)] {
+      "slug": slug.current
+    }`
+  )
+  
+  return events.map((event: { slug: string }) => ({
+    slug: event.slug,
+  }))
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

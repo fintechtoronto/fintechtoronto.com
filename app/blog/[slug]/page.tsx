@@ -30,6 +30,19 @@ async function getBlogPost(slug: string) {
   )
 }
 
+// Generate static params for all blog posts
+export async function generateStaticParams() {
+  const posts = await client.fetch(
+    groq`*[_type == "blog" && defined(slug.current)][]{
+      "slug": slug.current
+    }`
+  )
+  
+  return posts.map((post: { slug: string }) => ({
+    slug: post.slug,
+  }))
+}
+
 export default async function BlogPostPage({
   params,
 }: {
