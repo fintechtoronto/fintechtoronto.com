@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FintechToronto.com
 
-## Getting Started
+A community website for fintech enthusiasts in Toronto. This application uses Next.js as the frontend framework, with Supabase for database and authentication, and Sanity CMS for content management.
 
-First, run the development server:
+## Architecture
 
+This project uses a hybrid architecture that leverages the strengths of both Supabase and Sanity CMS:
+
+- **Supabase**: Handles authentication, user data, and structured content metadata
+- **Sanity CMS**: Manages rich content with a powerful editing interface
+- **Next.js**: Server-side rendering and routing
+- **TailwindCSS**: Styling with shadcn/ui components
+
+## Integration Workflow
+
+The integration between Supabase and Sanity works as follows:
+
+1. **Content Creation**:
+   - Users draft articles in the custom editor within the dashboard
+   - Content is initially stored in Supabase with a "draft" status
+
+2. **Content Submission**:
+   - Users submit their drafts for review
+   - Supabase status is updated to "submitted"
+
+3. **Content Review**:
+   - Admins review submissions in the admin panel
+   - They can approve or reject content
+
+4. **Content Publication**:
+   - When approved, content is automatically synced to Sanity CMS
+   - The content is now available via both Supabase and Sanity
+   - Sanity Studio can be used for further content editing and management
+
+5. **Content Display**:
+   - Public-facing content is fetched from Sanity using GROQ queries
+   - Dynamic/personalized content utilizes Supabase data
+
+## Admin Panel Features
+
+- **Dashboard**: Overview of key metrics
+- **Submissions**: Review and approve user-submitted content
+- **Users**: Manage user accounts and permissions
+- **Series**: Organize articles into curated collections
+- **Tags**: Manage content categorization
+- **Settings**: Configure site settings
+- **Sanity Studio**: Direct link to Sanity Studio for content management
+
+## Development Setup
+
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/fintechtoronto.git
+   cd fintechtoronto
+   ```
+
+2. Install dependencies
+   ```
+   npm install
+   ```
+
+3. Set up environment variables by copying `.env.example` to `.env.local` and filling in the values:
+   ```
+   cp .env.example .env.local
+   ```
+
+4. Start the development server
+   ```
+   npm run dev
+   ```
+
+5. Visit `http://localhost:3000` to see the application
+
+6. Access Sanity Studio at `http://localhost:3000/studio`
+
+## Environment Variables
+
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anonymous key for client operations
+- `SUPABASE_SERVICE_ROLE_KEY`: Supabase service role key for admin operations
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`: Your Sanity project ID
+- `NEXT_PUBLIC_SANITY_DATASET`: Your Sanity dataset (usually "production")
+- `SANITY_API_TOKEN`: Sanity API token with write permission (for syncing content)
+
+## Deployment
+
+This project can be deployed to Vercel:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Ffintechtoronto)
+
+## Features
+
+- Blog posts with series categorization (Hashnode-style)
+- Event listings with registration links
+- Newsletter subscription and management
+- Modern UI with light/dark mode
+- Sanity CMS integration
+- Supabase for newsletter subscribers
+- Novu for newsletter sending
+
+## Tech Stack
+
+- Next.js 14 with App Router
+- TypeScript
+- Tailwind CSS
+- shadcn UI components
+- Sanity CMS
+- Supabase
+- Novu
+
+## Prerequisites
+
+- Node.js 18+
+- npm
+- Sanity account
+- Supabase account
+- Novu account
+
+## Setup
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/fintechToronto.com.git
+cd fintechToronto.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Copy the environment variables file and fill in your values:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Required environment variables:
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`: Your Sanity project ID
+- `SANITY_TOKEN`: Your Sanity API token
+- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+- `NOVU_API_KEY`: Your Novu API key
 
-## Learn More
+4. Set up Sanity:
+```bash
+npm create sanity@latest
+```
+Choose the following options:
+- Create a new project
+- Use the default dataset configuration
+- Use the provided schemas
 
-To learn more about Next.js, take a look at the following resources:
+5. Set up Supabase:
+- Create a new project in Supabase
+- Run the SQL from `supabase/setup.sql` in the SQL editor
+- Enable Row Level Security (RLS)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Set up Novu:
+- Create a new account at novu.co
+- Create a new notification template for newsletters
+- Add the API key to your environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+7. Run the development server:
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The project is configured for deployment on Vercel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code to GitHub
+2. Import the repository in Vercel
+3. Add your environment variables
+4. Deploy!
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
