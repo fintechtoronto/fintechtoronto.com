@@ -82,6 +82,24 @@ The integration between Supabase and Sanity works as follows:
 - `NEXT_PUBLIC_SANITY_DATASET`: Your Sanity dataset (usually "production")
 - `SANITY_API_TOKEN`: Sanity API token with write permission (for syncing content)
 
+## Verifying Sanity Token Permissions
+
+To verify that your Sanity token has the correct permissions:
+
+1. Run the verification script:
+   ```bash
+   node scripts/verify-sanity-token.js
+   ```
+
+2. The script checks if the token can:
+   - Create and delete documents (write permission)
+   - Fetch documents (read permission)
+
+3. If you see permission errors, verify that:
+   - Your token has both read and write permissions in the Sanity dashboard
+   - The token is correctly set in your `.env.local` file as `SANITY_API_TOKEN`
+   - Your project ID and dataset name are correctly configured
+
 ## Deployment
 
 This project can be deployed to Vercel:
@@ -92,11 +110,15 @@ This project can be deployed to Vercel:
 
 - Blog posts with series categorization (Hashnode-style)
 - Event listings with registration links
+  - Calendar integration with Cal.com
+  - Event reminder notifications through Novu
+  - Registration management
+  - Event countdown timers
 - Newsletter subscription and management
 - Modern UI with light/dark mode
 - Sanity CMS integration
-- Supabase for newsletter subscribers
-- Novu for newsletter sending
+- Supabase for authentication and data storage
+- Novu for notifications and newsletters
 
 ## Tech Stack
 
@@ -107,6 +129,7 @@ This project can be deployed to Vercel:
 - Sanity CMS
 - Supabase
 - Novu
+- Cal.com (for calendar integration)
 
 ## Prerequisites
 
@@ -140,6 +163,7 @@ Required environment variables:
 - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
 - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
 - `NOVU_API_KEY`: Your Novu API key
+- `CALCOM_API_KEY`: Your Cal.com API key (optional, for calendar integration)
 
 4. Set up Sanity:
 ```bash
@@ -153,14 +177,20 @@ Choose the following options:
 5. Set up Supabase:
 - Create a new project in Supabase
 - Run the SQL from `supabase/setup.sql` in the SQL editor
+- Run the events migration from `supabase/migrations/20240707_create_events_tables.sql`
 - Enable Row Level Security (RLS)
 
 6. Set up Novu:
 - Create a new account at novu.co
-- Create a new notification template for newsletters
+- Create notification templates for newsletters and events
 - Add the API key to your environment variables
 
-7. Run the development server:
+7. Set up Cal.com (optional):
+- Create an account at Cal.com
+- Set up event types for your organization
+- Generate an API key and add it to your environment variables
+
+8. Run the development server:
 ```bash
 npm run dev
 ```

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { client } from '@/lib/sanity'
+import { client, adminClient } from '@/lib/sanity'
 import { useAuth } from '@/components/auth-provider'
 import { useToast } from '@/hooks/use-toast'
 import { useDebounce } from '@/lib/hooks'
@@ -248,40 +248,41 @@ export default function EventsPage() {
         calId = `cal_${Math.random().toString(36).substring(2, 15)}`
       }
       
-      // Create slug from title
-      const slug = title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-      
-      // Create the event document in Sanity
+      // Prepare event data for Sanity
       const eventData = {
         _type: 'event',
         title,
+        slug: {
+          _type: 'slug',
+          current: title
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]+/g, '')
+        },
         description: [{
           _type: 'block',
+          style: 'normal',
+          _key: new Date().toISOString(),
+          markDefs: [],
           children: [{
             _type: 'span',
-            text: description
-          }],
-          style: 'normal'
+            _key: new Date().toISOString(),
+            text: description,
+            marks: []
+          }]
         }],
         date: eventDateTime.toISOString(),
         location,
-        link: calIntegration ? `https://cal.com/event/${calId}` : '',
-        slug: {
-          _type: 'slug',
-          current: slug
-        },
+        link: calIntegration && calId ? `https://cal.com/event/${calId}` : '',
         eventType,
         calId,
         status: 'published',
+        isFeatured: isFeatured,
         maxAttendees: parseInt(maxAttendees.toString())
       }
       
-      // Create document in Sanity
-      const response = await client.create(eventData)
+      // Create document in Sanity using adminClient instead of client
+      const response = await adminClient.create(eventData)
       
       toast({
         title: 'Success!',
@@ -325,8 +326,8 @@ export default function EventsPage() {
         console.log(`Deleting Cal.com event with ID: ${selectedEvent.calId}`)
       }
       
-      // Delete the event document from Sanity
-      await client.delete(selectedEvent._id)
+      // Delete the event document from Sanity using adminClient
+      await adminClient.delete(selectedEvent._id)
       
       toast({
         title: 'Success!',
