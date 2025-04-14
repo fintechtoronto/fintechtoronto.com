@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // For Netlify deployment
-  output: 'export',
-  distDir: 'out',
+  // Comment out Netlify-specific settings when deploying to Amplify
+  // output: 'export',
+  // distDir: 'out',
   
   // Make sure no static prerendering (useSearchParams issue)
   staticPageGenerationTimeout: 0,
