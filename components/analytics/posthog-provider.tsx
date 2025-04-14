@@ -2,8 +2,8 @@
 
 import { usePathname, useSearchParams } from 'next/navigation'
 import posthog from 'posthog-js'
-import { PostHogProvider as PHProvider } from 'posthog-js/react'
-import { useEffect } from 'react'
+import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react'
+import { useEffect, Suspense } from 'react'
 
 // Declare posthog on the window object for TypeScript
 declare global {
@@ -20,76 +20,58 @@ const debugLog = (message: string, data?: any) => {
 };
 
 // PostHog configuration from environment variables
-const posthogApiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY
-const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+const posthogApiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
 
-// Initialize PostHog in the client side only
-if (typeof window !== 'undefined') {
-  if (!posthogApiKey) {
-    debugLog('⚠️ PostHog API key is missing! Check your .env file for NEXT_PUBLIC_POSTHOG_KEY');
-  } else {
-    debugLog('Initializing PostHog with config:', { 
-      apiKey: posthogApiKey?.substring(0, 4) + '...',
-      host: posthogHost
-    });
-    
-    try {
-      posthog.init(posthogApiKey, {
-        api_host: posthogHost,
-        capture_pageview: false, // We'll manually capture pageviews
-        capture_pageleave: true,
-        ui_host: posthogHost,
-        loaded: (posthog) => {
-          debugLog('PostHog loaded successfully');
-          if (process.env.NODE_ENV === 'development') {
-            // Make available during development
-            window.posthog = posthog
-          }
-        },
-      })
-    } catch (error) {
-      debugLog('❌ Error initializing PostHog:', error);
-    }
-  }
-}
+// Removed global initialization. PostHog will now be initialized in the PostHogProvider component.
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
   useEffect(() => {
-    if (!posthogApiKey) {
-      debugLog('⚠️ Skipping pageview capture: PostHog API key is missing');
+    if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      debugLog('⚠️ PostHog API key is missing! Check your .env file for NEXT_PUBLIC_POSTHOG_KEY');
       return;
     }
-    
-    if (pathname) {
-      let url = window.origin + pathname
-      
-      // If search parameters exist, append them to the URL
-      if (searchParams && searchParams.toString()) {
-        url = `${url}?${searchParams.toString()}`
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+      api_host: '/ingest',
+      ui_host: 'https://us.posthog.com',
+      capture_pageview: false, // We capture pageviews manually
+      capture_pageleave: true, // Enable pageleave capture
+    });
+  }, []);
+
+  return (
+    <PHProvider client={posthog}>
+      <SuspendedPostHogPageView />
+      {children}
+    </PHProvider>
+  );
+}
+
+function PostHogPageView() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const posthogClient = usePostHog();
+
+  useEffect(() => {
+    if (pathname && posthogClient) {
+      let url = window.origin + pathname;
+      const search = searchParams.toString();
+      if (search) {
+        url += '?' + search;
       }
-      
-      // Capture pageview with current URL
-      try {
-        debugLog('Capturing pageview for:', url);
-        posthog.capture('$pageview', {
-          current_url: url,
-        })
-      } catch (error) {
-        debugLog('❌ Error capturing pageview:', error);
-      }
+      posthogClient.capture('$pageview', { '$current_url': url });
     }
-  }, [pathname, searchParams])
+  }, [pathname, searchParams, posthogClient]);
 
-  // If PostHog is not configured, render children without the provider
-  if (!posthogApiKey) {
-    debugLog('Rendering without PostHog provider - API key missing');
-    return <>{children}</>;
-  }
+  return null;
+}
 
-  return <PHProvider client={posthog}>{children}</PHProvider>
+function SuspendedPostHogPageView() {
+  return (
+    <Suspense fallback={null}>
+      <PostHogPageView />
+    </Suspense>
+  );
 }
 
 // Utility functions for analytics with error handling
@@ -100,57 +82,57 @@ export const Analytics = {
       debugLog(`⚠️ Skipped tracking "${eventName}": PostHog API key is missing`);
       return;
     }
-    
+
     try {
       debugLog(`Tracking event: ${eventName}`, properties);
-      posthog.capture(eventName, properties)
+      posthog.capture(eventName, properties);
     } catch (error) {
       debugLog(`❌ Error tracking "${eventName}":`, error);
     }
   },
-  
+
   // Identify user
   identify: (userId: string, traits?: Record<string, any>) => {
     if (!posthogApiKey) {
       debugLog('⚠️ Skipped identify: PostHog API key is missing');
       return;
     }
-    
+
     try {
       debugLog(`Identifying user: ${userId.substring(0, 4)}...`, traits);
-      posthog.identify(userId, traits)
+      posthog.identify(userId, traits);
     } catch (error) {
       debugLog('❌ Error identifying user:', error);
     }
   },
-  
+
   // Reset user (logout)
   reset: () => {
     if (!posthogApiKey) return;
-    
+
     try {
       debugLog('Resetting user identity');
-      posthog.reset()
+      posthog.reset();
     } catch (error) {
       debugLog('❌ Error resetting user:', error);
     }
   },
-  
+
   // Register persistent super properties
   register: (properties: Record<string, any>) => {
     if (!posthogApiKey) {
       debugLog('⚠️ Skipped register: PostHog API key is missing');
       return;
     }
-    
+
     try {
       debugLog('Registering super properties', properties);
-      posthog.register(properties)
+      posthog.register(properties);
     } catch (error) {
       debugLog('❌ Error registering properties:', error);
     }
-  }
-}
+  },
+};
 
 // Export posthog instance for direct access if needed
-export { posthog } 
+export { posthog };
