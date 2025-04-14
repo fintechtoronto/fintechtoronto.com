@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
+import { Analytics } from '@/components/analytics/posthog-provider'
 
 type AuthContextType = {
   user: User | null
@@ -73,6 +74,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setupPersistence();
   }, []);
 
+  // Identify user in PostHog when user changes
+  useEffect(() => {
+    if (user) {
+      // Identify the user in PostHog
+      Analytics.identify(user.id, {
+        email: user.email,
+        name: user.user_metadata?.full_name || '',
+        role: user.user_metadata?.role || 'user',
+        sign_up_date: user.created_at
+      });
+
+      // Set super properties that will be included with all events
+      Analytics.register({
+        user_id: user.id,
+        authenticated: true,
+        role: user.user_metadata?.role || 'user'
+      });
+    } else {
+      // Reset user identification when logged out
+      Analytics.reset();
+    }
+  }, [user]);
+
   useEffect(() => {
     // Check active session
     const getSession = async () => {
@@ -110,6 +134,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(session?.user || null)
       setLoading(false)
+      
+      // Track auth events in PostHog
+      if (event === 'SIGNED_IN') {
+        Analytics.track('user_signed_in', {
+          method: 'email',
+          user_id: session?.user?.id
+        });
+      } else if (event === 'SIGNED_OUT') {
+        Analytics.track('user_signed_out');
+      }
       
       console.log('AuthProvider: Refreshing router...')
       router.refresh()
