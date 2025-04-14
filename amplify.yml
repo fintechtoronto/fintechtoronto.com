@@ -12,10 +12,10 @@ frontend:
         - pnpm install --frozen-lockfile
         # Setup AWS CLI configuration for S3/CloudFront access
         - echo "Configuring AWS CLI for media storage access..."
-        - bash -c "scripts/amplify-prebuild.sh || echo \"⚠️ Warning: Pre-build script failed but continuing...\""
+        - 'bash -c "scripts/amplify-prebuild.sh || echo \"⚠️ Warning: Pre-build script failed but continuing...\""'
         # Set environment variables for the build
         - echo "Creating .env file..."
-        - bash -c "env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ -e KABADIGITAL_ > .env.production || true"
+        - 'bash -c "env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ -e KABADIGITAL_ > .env.production || true"'
     build:
       commands:
         - echo "Building Next.js app..."
