@@ -13,7 +13,7 @@ frontend:
         - echo "Creating production .env file..."
         - "bash -c 'env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ > .env.production || true'"
         - echo "Building Next.js application..."
-        - "NEXT_PUBLIC_BUILD_MODE=production pnpm run build"
+        - "NEXT_PUBLIC_BUILD_MODE=production NODE_ENV=production pnpm run build"
   artifacts:
     baseDirectory: .next
     files:

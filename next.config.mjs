@@ -7,6 +7,9 @@ const nextConfig = {
   // Make sure no static prerendering (useSearchParams issue)
   staticPageGenerationTimeout: 0,
   
+  // Disable static generation completely to avoid useSearchParams errors
+  output: 'standalone',
+  
   images: {
     remotePatterns: [
       {
@@ -22,6 +25,7 @@ const nextConfig = {
         hostname: 'api.dicebear.com',
       },
     ],
+    unoptimized: true, // Add this for Amplify deployment
   },
   experimental: {
     // Add serverActions options
