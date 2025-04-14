@@ -1,1 +1,1 @@
-﻿export const structure = (S) => S.list().title("Content").items([]);
+﻿export const structure = (S: any) => S.list().title("Content").items([]);

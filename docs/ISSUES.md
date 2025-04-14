@@ -113,8 +113,8 @@ Implement PostHog analytics tracking throughout the application to capture user 
 #### Configuration
 
 The PostHog provider is initialized with the following configuration:
-- API Key: `phx_LXjGZ1EC7mUdPOKz91bAgO0BFHX4u3zlQy60f0I4VH4tK7t`
-- Host URL: `https://app.posthog.com` (default)
+- API Key: Environment variable `NEXT_PUBLIC_POSTHOG_KEY` with fallback to `phc_CegOfQFiIt5jg3nl5Gz0peFy4DCc8wqNfYyJ0KV3eWY`
+- Host URL: Environment variable `NEXT_PUBLIC_POSTHOG_HOST` with fallback to `https://us.i.posthog.com`
 - Manual page view capturing for better control
 - Automatic page leave tracking
 

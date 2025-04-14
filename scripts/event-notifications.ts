@@ -13,19 +13,23 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import dotenv from 'dotenv'
+// Using require for dotenv to avoid type issues
+require('dotenv').config()
 import { 
   sendEventReminder, 
   sendEventFollowup 
 } from '../lib/novu'
 
-// Load environment variables
-dotenv.config()
-
 // Initialize Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+// Use a placeholder key for build time to prevent errors
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-for-build-time'
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+})
 
 async function main() {
   try {

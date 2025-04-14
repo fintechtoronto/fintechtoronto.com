@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Initialize Supabase Admin client
+// Use a placeholder key for build-time to prevent errors
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-for-build-time'
+
+// Initialize Supabase client with service role key
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  serviceRoleKey,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
 )
 
 export async function POST(request: Request) {

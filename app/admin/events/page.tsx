@@ -105,7 +105,12 @@ export default function EventsPage() {
   
   // Cal.com integration
   const [calApiKey] = useState('cal_live_6ffcf56ccee336a15d23d9869974e8b9')
-  const [calEvents, setCalEvents] = useState([])
+  const [calEvents, setCalEvents] = useState<Array<{
+    id: string | undefined;
+    title: string;
+    attendees: number;
+    maxAttendees: number;
+  }>>([])
   const [loadingCalEvents, setLoadingCalEvents] = useState(false)
   
   // Form states for new event

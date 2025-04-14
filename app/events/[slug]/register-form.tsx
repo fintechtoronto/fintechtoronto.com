@@ -27,7 +27,7 @@ const formSchema = z.object({
   company: z.string().optional(),
   jobTitle: z.string().optional(),
   dietaryRequirements: z.string().optional(),
-  newsletter: z.boolean().default(false),
+  newsletter: z.boolean(),
   agreeTerms: z.boolean().refine(value => value === true, {
     message: 'You must agree to the terms and conditions.'
   })
