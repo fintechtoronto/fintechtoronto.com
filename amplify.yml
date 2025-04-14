@@ -1,0 +1,23 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm i -g pnpm
+        - pnpm install
+        - chmod +x scripts/amplify-prebuild.sh
+        - ./scripts/amplify-prebuild.sh
+    build:
+      commands:
+        - echo "Creating production .env file..."
+        - env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ > .env.production
+        - echo "Building Next.js application..."
+        - pnpm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/* 

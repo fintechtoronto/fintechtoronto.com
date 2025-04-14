@@ -8,11 +8,13 @@ import { useAuth } from '@/components/auth-provider'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { UserCircle, Settings, FileText, BookOpen, LayoutDashboard, LogOut, Bell, PenSquare, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Header() {
   const { user, signOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   const getInitials = (name?: string) => {
     if (!name) return 'U'
@@ -37,6 +39,13 @@ export default function Header() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  // Function to handle navigation from dropdown
+  const handleNavigate = (path: string) => {
+    setIsOpen(false)
+    // Use window.location for hard navigation to avoid potential authentication issues
+    window.location.href = path
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -107,32 +116,47 @@ export default function Header() {
                     </div>
                     
                     <div className="p-1">
-                      <a href="/dashboard" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      <button 
+                        onClick={() => handleNavigate('/dashboard')}
+                        className="flex items-center gap-2 w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
                         <LayoutDashboard className="h-4 w-4 mr-2" />
                         Dashboard
-                      </a>
-                      <a href="/dashboard/new-article" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      </button>
+                      <button 
+                        onClick={() => handleNavigate('/dashboard/new-article')}
+                        className="flex items-center gap-2 w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
                         <PenSquare className="h-4 w-4 mr-2" />
                         Write Article
-                      </a>
-                      <a href="/dashboard/articles" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      </button>
+                      <button 
+                        onClick={() => handleNavigate('/dashboard/articles')}
+                        className="flex items-center gap-2 w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
                         <BookOpen className="h-4 w-4 mr-2" />
                         My Articles
-                      </a>
+                      </button>
                     </div>
                     
                     <div className="border-t border-border p-1">
-                      <a href="/dashboard/notifications" className="flex items-center justify-between px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      <button 
+                        onClick={() => handleNavigate('/dashboard/notifications')}
+                        className="flex items-center justify-between w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
                         <div className="flex items-center">
                           <Bell className="h-4 w-4 mr-2" />
                           Notifications
                         </div>
                         <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">3</span>
-                      </a>
-                      <a href="/dashboard/settings/profile" className="flex items-center gap-2 px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                      </button>
+                      <button 
+                        onClick={() => handleNavigate('/dashboard/settings/profile')}
+                        className="flex items-center gap-2 w-full text-left px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                      >
                         <Settings className="h-4 w-4 mr-2" />
                         Settings
-                      </a>
+                      </button>
                     </div>
                     
                     <div className="border-t border-border p-1">
@@ -151,11 +175,14 @@ export default function Header() {
                 )}
               </div>
               
-              <Button asChild variant="outline" size="sm" className="hidden md:inline-flex gap-1">
-                <Link href="/dashboard/new-article">
-                  <FileText className="h-4 w-4 mr-1" />
-                  Write
-                </Link>
+              <Button 
+                className="hidden md:inline-flex gap-1"
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleNavigate('/dashboard/new-article')}
+              >
+                <FileText className="h-4 w-4 mr-1" />
+                Write
               </Button>
             </div>
           )}

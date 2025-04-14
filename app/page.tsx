@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Link from 'next/link'
 import Image from 'next/image'
 import NewsletterSignup from '@/components/NewsletterSignup'
-import { ArrowRight, Calendar, ArrowUpRight } from 'lucide-react'
+import { ArrowRight, Calendar, ArrowUpRight, MapPin, Clock } from 'lucide-react'
 import { Newsletter } from "@/components/Newsletter"
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient'
 
 async function getHomePageData() {
   const blogs = await client.fetch(
@@ -60,16 +61,16 @@ export default function Home() {
               <div>
                 <div className="mb-6 inline-flex items-center rounded-full border border-blue-200 bg-blue-100/80 px-4 py-1.5 text-sm font-medium text-blue-700 backdrop-blur-sm dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                   <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
-                  Connecting Toronto's Fintech Ecosystem
+                  Toronto's FinTech & AI Community Hub
                 </div>
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                  Empowering <span className="text-blue-600 dark:text-blue-400">Financial</span> <br />
-                  <span className="text-blue-600 dark:text-blue-400">Innovation</span> in Toronto
+                  Connecting <span className="text-blue-600 dark:text-blue-400">Innovators</span> <br />
+                  <span className="text-blue-600 dark:text-blue-400">Amplifying</span> Toronto's Potential
                 </h1>
               </div>
               <p className="max-w-[600px] text-gray-600 dark:text-gray-300 md:text-xl">
-                Join a thriving network of <strong>2,500+</strong> innovators, entrepreneurs, and financial
-                experts shaping the future of finance in the GTA.
+                Join a thriving community dedicated to boosting FinTech & AI innovation through knowledge sharing, 
+                engagement, and increasing visibility of Toronto's brightest minds and companies.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button size="lg" className="rounded-full px-8 shadow-md" asChild>
@@ -79,7 +80,7 @@ export default function Home() {
                 </Button>
                 <Button variant="outline" size="lg" className="rounded-full border-blue-200 bg-white/50 backdrop-blur-sm dark:border-blue-800 dark:bg-gray-900/50" asChild>
                   <Link href="/articles">
-                    Explore Resources
+                    Explore Articles
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -90,7 +91,7 @@ export default function Home() {
                   <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  20+ Events Yearly
+                  Community-Contributed Articles
                 </span>
                 <span className="hidden h-1.5 w-1.5 rounded-full bg-gray-300 dark:bg-gray-600 sm:block"></span>
                 <span className="flex items-center gap-1.5">
@@ -104,7 +105,7 @@ export default function Home() {
                   <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Exclusive Industry Insights
+                  FinTech & AI Networking Events
                 </span>
               </div>
             </div>
@@ -125,7 +126,7 @@ export default function Home() {
                   </div>
                   
                   <div className="p-6">
-                    <h3 className="mb-3 text-lg font-semibold">Stay ahead in Toronto's Fintech Scene</h3>
+                    <h3 className="mb-3 text-lg font-semibold">Stay Connected with Toronto's FinTech Scene</h3>
                     <div className="mb-4 space-y-3">
                       <div className="flex items-start gap-3">
                         <div className="mt-0.5 rounded-full bg-blue-100 p-1 dark:bg-blue-800/40">
@@ -133,7 +134,7 @@ export default function Home() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <div className="text-sm">Latest funding rounds and startup news</div>
+                        <div className="text-sm">Latest trends, news, and community contributions</div>
                       </div>
                       <div className="flex items-start gap-3">
                         <div className="mt-0.5 rounded-full bg-blue-100 p-1 dark:bg-blue-800/40">
@@ -149,7 +150,7 @@ export default function Home() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         </div>
-                        <div className="text-sm">Regulatory updates and industry trends</div>
+                        <div className="text-sm">Opportunities for visibility and collaboration</div>
                       </div>
                     </div>
                     <Button className="w-full" asChild>
@@ -165,67 +166,80 @@ export default function Home() {
 
       <div className="container px-4 py-12">
         {/* Latest Articles */}
-        <section className="py-12">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <section className="py-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
             <div>
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-3">
+                Featured Content
+              </div>
               <h2 className="text-3xl font-bold tracking-tight mb-2">Latest Articles</h2>
               <p className="text-muted-foreground max-w-2xl">Insights and analyses from Toronto's fintech industry experts</p>
             </div>
             <Link 
               href="/articles" 
-              className="mt-4 md:mt-0 group flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="mt-6 md:mt-0 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
             >
               View all articles
-              <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="overflow-hidden flex flex-col h-full hover:shadow-md transition-shadow border-t-4 border-t-primary/70">
-                <div className="aspect-video w-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 relative">
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                      {i === 1 ? "Open Banking" : i === 2 ? "AI in Fintech" : "Blockchain"}
-                    </span>
+              <div key={i} className="group relative h-full">
+                <Card className="h-full transition-all duration-300 bg-card hover:shadow-lg overflow-hidden">
+                  <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <HoverBorderGradient
+                      containerClassName="absolute inset-0 rounded-xl"
+                      className="hidden"
+                      duration={1.5}
+                      as="div"
+                    />
                   </div>
-                </div>
-                <CardHeader className="p-5 pb-3">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="h-6 w-6 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">FT</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">FinTech Toronto</span>
-                      <span className="text-sm text-muted-foreground">•</span>
-                      <span className="text-sm text-muted-foreground">Apr {i+5}, 2024</span>
+                  <div className="aspect-video w-full bg-card relative overflow-hidden">
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="inline-flex items-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-1.5 text-xs font-medium border border-border/40">
+                        {i === 1 ? "Open Banking" : i === 2 ? "AI in Fintech" : "Blockchain"}
+                      </span>
                     </div>
-                    <CardTitle className="text-xl hover:text-primary transition-colors line-clamp-2">
-                      {i === 1 
-                        ? "The Future of Open Banking in Canada: Opportunities and Challenges" 
-                        : i === 2 
-                          ? "How AI is Transforming Risk Assessment in Lending" 
-                          : "Blockchain Applications for Real Estate Tokenization"}
-                    </CardTitle>
                   </div>
-                </CardHeader>
-                <CardContent className="px-5 py-2 flex-grow">
-                  <p className="text-muted-foreground line-clamp-3">
-                    {i === 1 
-                      ? "Exploring how open banking initiatives are reshaping financial services in Canada and what it means for consumers and businesses." 
-                      : i === 2 
-                        ? "An in-depth look at how machine learning models are revolutionizing credit scoring and loan approval processes." 
-                        : "Discover how blockchain technology is creating new investment opportunities through fractional ownership of real estate assets."}
-                  </p>
-                </CardContent>
-                <CardFooter className="border-t px-5 py-4 mt-auto">
-                  <Button variant="ghost" className="px-0 hover:bg-transparent hover:text-primary" asChild>
-                    <Link href={`/articles/${i}`} className="flex items-center">
-                      Read more 
-                      <ArrowRight className="ml-1.5 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+                  <CardHeader className="p-6 pb-2">
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                          <span className="text-xs font-semibold">FT</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">FinTech Toronto</span>
+                        <span className="text-sm text-muted-foreground">•</span>
+                        <span className="text-sm text-muted-foreground">Apr {i+5}, 2024</span>
+                      </div>
+                      <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
+                        {i === 1 
+                          ? "The Future of Open Banking in Canada: Opportunities and Challenges" 
+                          : i === 2 
+                            ? "How AI is Transforming Risk Assessment in Lending" 
+                            : "Blockchain Applications for Real Estate Tokenization"}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-6 py-3 flex-grow">
+                    <p className="text-muted-foreground line-clamp-3">
+                      {i === 1 
+                        ? "Exploring how open banking initiatives are reshaping financial services in Canada and what it means for consumers and businesses." 
+                        : i === 2 
+                          ? "An in-depth look at how machine learning models are revolutionizing credit scoring and loan approval processes." 
+                          : "Discover how blockchain technology is creating new investment opportunities through fractional ownership of real estate assets."}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="border-t px-6 py-4 mt-auto">
+                    <Button variant="ghost" className="px-0 hover:bg-transparent hover:text-primary" asChild>
+                      <Link href={`/articles/${i}`} className="flex items-center font-medium">
+                        Read article 
+                        <ArrowRight className="ml-1.5 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
             ))}
           </div>
         </section>
@@ -234,137 +248,94 @@ export default function Home() {
         <section className="py-16">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
             <div>
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-3">
+                Upcoming Events
+              </div>
               <h2 className="text-3xl font-bold tracking-tight mb-2">Featured Events</h2>
-              <p className="text-muted-foreground max-w-2xl">Exclusive events hosted by FinTech Toronto and our partners</p>
+              <p className="text-muted-foreground max-w-2xl">Connect with Toronto's fintech community at these upcoming events</p>
             </div>
             <Link 
               href="/events" 
-              className="mt-4 md:mt-0 group flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="mt-6 md:mt-0 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
             >
               View all events
-              <ArrowRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* {events?.map((event) => (
-              <Card key={event._id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 mb-2">
-                        {event.eventType || "Event"}
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="group relative h-full">
+                <Card className="h-full transition-all duration-300 bg-card hover:shadow-lg overflow-hidden">
+                  <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <HoverBorderGradient
+                      containerClassName="absolute inset-0 rounded-xl"
+                      className="hidden"
+                      duration={1.5}
+                      as="div"
+                    />
+                  </div>
+                  <div className="aspect-video w-full bg-card relative overflow-hidden">
+                    <div className="absolute top-3 left-3 z-10">
+                      <span className="inline-flex items-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-1.5 text-xs font-medium border border-border/40">
+                        {i === 1 ? "Workshop" : i === 2 ? "Conference" : "Networking"}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-3 right-3 z-10">
+                      <span className="inline-flex items-center rounded-md bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white border border-white/10">
+                        {i === 1 ? "May 15" : i === 2 ? "June 7-8" : "June 22"}
+                      </span>
+                    </div>
+                  </div>
+                  <CardHeader className="p-6 pb-2">
+                    <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
+                      {i === 1 
+                        ? "Open Banking API Integration Workshop" 
+                        : i === 2 
+                          ? "Toronto Fintech Week 2024" 
+                          : "Fintech Founders Mixer"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-6 py-3 flex-grow">
+                    <div className="flex items-center gap-3 mb-4 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4" />
+                        <span>
+                          {i === 1 
+                            ? "MaRS Discovery District" 
+                            : i === 2 
+                              ? "Metro Toronto Convention Centre" 
+                              : "OneEleven Toronto"}
+                        </span>
                       </div>
-                      <CardTitle className="text-xl">{event.title}</CardTitle>
-                      <CardDescription className="mt-1">
-                        {new Date(event.date).toLocaleDateString('en-US', { 
-                          month: 'long', 
-                          day: 'numeric', 
-                          year: 'numeric' 
-                        })} • {new Date(event.date).toLocaleTimeString('en-US', { 
-                          hour: 'numeric', 
-                          minute: '2-digit',
-                          hour12: true 
-                        })}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-3">
-                  <p className="text-muted-foreground line-clamp-3">{event.description}</p>
-                </CardContent>
-                <CardFooter className="flex justify-between border-t px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full flex items-center justify-center bg-blue-50 dark:bg-blue-900">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                      </svg>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{event.location}</p>
-                  </div>
-                  <Button asChild size="sm">
-                    <Link href={event.link || `/events/${event.slug.current}`}>Register</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))} */}
-            
-            {/* Example events - will be replaced by dynamic events once database is populated */}
-            {[
-              {
-                id: '1',
-                title: 'State of Fintech in Canada 2025',
-                date: 'May 25, 2024 • 6:00 PM',
-                description: 'An exclusive conference featuring industry leaders discussing the future landscape of fintech in Canada.',
-                location: 'Toronto, Ontario',
-                eventType: 'In-Person',
-                link: '/events/state-of-fintech',
-                typeColor: 'green'
-              },
-              {
-                id: '2',
-                title: 'Blockchain Futurist Conference',
-                date: 'June 12, 2024 • 9:00 AM',
-                description: 'Canada\'s largest blockchain and cryptocurrency conference returns with top speakers and networking opportunities.',
-                location: 'Design Exchange Events Venue',
-                eventType: 'Virtual',
-                link: '/events/blockchain-futurist',
-                typeColor: 'indigo'
-              },
-              {
-                id: '3',
-                title: 'ETHWomen Toronto',
-                date: 'July 5, 2024 • 10:00 AM',
-                description: 'A workshop designed to empower women in blockchain and Ethereum development with hands-on sessions and mentorship.',
-                location: 'Design Exchange Events Venue',
-                eventType: 'Workshop',
-                link: '/events/ethwomen-toronto',
-                typeColor: 'amber'
-              }
-            ].map((event) => (
-              <Card key={event.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium mb-2 ${
-                        event.typeColor === 'green' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                          : event.typeColor === 'indigo'
-                            ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400'
-                            : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                      }`}>
-                        {event.eventType}
+                      <span>•</span>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        <span>
+                          {i === 1 
+                            ? "9:00 AM - 4:00 PM" 
+                            : i === 2 
+                              ? "All Day" 
+                              : "6:00 PM - 9:00 PM"}
+                        </span>
                       </div>
-                      <CardTitle className="text-xl">{event.title}</CardTitle>
-                      <CardDescription className="mt-1">{event.date}</CardDescription>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-3">
-                  <p className="text-muted-foreground">{event.description}</p>
-                </CardContent>
-                <CardFooter className="flex justify-between border-t px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full flex items-center justify-center bg-blue-50 dark:bg-blue-900">
-                      {event.eventType === 'Virtual' ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-                          <rect width="18" height="12" x="3" y="4" rx="2"></rect>
-                          <line x1="2" x2="22" y1="20" y2="20"></line>
-                        </svg>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600 dark:text-blue-400">
-                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                          <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground">{event.location}</p>
-                  </div>
-                  <Button asChild size="sm">
-                    <Link href={event.link}>Register</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+                    <p className="text-muted-foreground line-clamp-3">
+                      {i === 1 
+                        ? "Hands-on workshop for developers to learn about implementing open banking APIs in their applications." 
+                        : i === 2 
+                          ? "Toronto's premier fintech conference featuring keynotes, panels, and networking opportunities with industry leaders." 
+                          : "An exclusive networking event for fintech founders, investors, and ecosystem partners."}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="border-t px-6 py-4 mt-auto">
+                    <Button variant="default" className="w-full" asChild>
+                      <Link href={`/events/${i}`}>
+                        Register now
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </div>
             ))}
           </div>
         </section>
@@ -373,21 +344,32 @@ export default function Home() {
         <section className="py-16">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
             <div>
+              <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary mb-3">
+                Community Gatherings
+              </div>
               <h2 className="text-3xl font-bold tracking-tight mb-2">Community Events</h2>
               <p className="text-muted-foreground max-w-2xl">Discover events from the broader Toronto fintech community</p>
             </div>
             <Link 
               href="https://lu.ma/fintechto" 
-              className="mt-4 md:mt-0 group flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="mt-6 md:mt-0 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
               target="_blank"
               rel="noopener noreferrer"
             >
               View all community events
-              <ArrowUpRight className="ml-1 h-4 w-4 group-hover:translate-x-0.5 group-hover:translate-y-[-2px] transition-transform" />
+              <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:translate-y-[-2px] transition-transform" />
             </Link>
           </div>
           
-          <div className="relative rounded-xl border bg-card p-1 shadow-md overflow-hidden">
+          <div className="relative rounded-xl border bg-card p-1 shadow-md overflow-hidden group">
+            <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <HoverBorderGradient
+                containerClassName="absolute inset-0 rounded-xl"
+                className="hidden"
+                duration={1.5}
+                as="div"
+              />
+            </div>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5"></div>
             <div className="relative rounded-lg overflow-hidden aspect-[4/3] md:aspect-[16/9] w-full h-full min-h-[450px]">
               <iframe
@@ -427,7 +409,15 @@ export default function Home() {
 
         {/* Newsletter Section */}
         <section id="newsletter" className="py-16">
-          <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+          <div className="rounded-xl border bg-card shadow-sm overflow-hidden relative group">
+            <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <HoverBorderGradient
+                containerClassName="absolute inset-0 rounded-xl"
+                className="hidden"
+                duration={1.5}
+                as="div"
+              />
+            </div>
             <div className="flex flex-col lg:flex-row">
               <div className="p-8 lg:p-12 lg:w-3/5">
                 <div className="mx-auto max-w-2xl">
@@ -532,7 +522,15 @@ export default function Home() {
               </div>
               <div className="relative">
                 <div className="absolute -inset-4 rounded-xl bg-gradient-to-r from-primary to-primary-foreground opacity-10 blur-lg"></div>
-                <div className="relative aspect-video overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 to-primary/30 p-2">
+                <div className="relative aspect-video overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 to-primary/30 p-2 relative group">
+                  <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <HoverBorderGradient
+                      containerClassName="absolute inset-0 rounded-lg"
+                      className="hidden"
+                      duration={1.5}
+                      as="div"
+                    />
+                  </div>
                   <Image 
                     src="/images/toronto-fintech.jpg" 
                     alt="Toronto Fintech Ecosystem" 

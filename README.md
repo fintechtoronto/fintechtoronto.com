@@ -106,6 +106,37 @@ This project can be deployed to Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Ffintechtoronto)
 
+This application is configured for deployment on AWS Amplify. For detailed deployment instructions, see the [Deployment Guide](docs/DEPLOYMENT.md).
+
+### AWS Amplify Deployment
+
+1. Connect your GitHub repository to AWS Amplify
+2. Set the required environment variables in the Amplify Console
+3. The build process will automatically use the configuration in `amplify.yml`
+
+### Environment Variables
+
+Make sure to set the following environment variables in the Amplify Console:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+SANITY_API_TOKEN=your_sanity_token
+NOVU_API_KEY=your_novu_api_key
+```
+
+### Verifying Environment Setup
+
+You can verify your environment setup by running:
+
+```bash
+pnpm verify-env
+```
+
+This will check if your service role key is configured correctly.
+
 ## Features
 
 - Blog posts with series categorization (Hashnode-style)

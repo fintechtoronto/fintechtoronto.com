@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import { useDebounce } from '@/lib/hooks'
+import { useAuth } from '@/components/auth-provider'
 
 type Series = {
   id: string;
@@ -50,6 +51,7 @@ type Series = {
 }
 
 export default function SeriesPage() {
+  const { user } = useAuth()
   const [seriesList, setSeriesList] = useState<Series[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -177,32 +179,48 @@ export default function SeriesPage() {
     try {
       setProcessingId(id)
       
-      const { error } = await supabaseAdmin
-        .from('series')
-        .update({ 
-          status,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', id)
+      // Get the current series data
+      const currentSeries = seriesList.find(series => series.id === id)
+      if (!currentSeries) throw new Error('Series not found')
       
-      if (error) throw error
+      // Use the API route instead of direct supabaseAdmin access
+      const response = await fetch('/api/admin/series', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id,
+          name: currentSeries.name,
+          slug: currentSeries.slug,
+          description: currentSeries.description,
+          status,
+        }),
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update series status')
+      }
       
       // Update local state
-      setSeriesList(seriesList.map(series => 
-        series.id === id ? { ...series, status } : series
-      ))
+      setSeriesList(prev => 
+        prev.map(series => 
+          series.id === id 
+            ? { ...series, status } 
+            : series
+        )
+      )
       
       toast({
-        title: status === 'approved' ? 'Series Approved' : 'Series Rejected',
-        description: status === 'approved' 
-          ? 'The series has been approved and is now public' 
-          : 'The series has been rejected',
+        title: 'Status Updated',
+        description: `Series has been ${status}`,
       })
     } catch (error) {
-      console.error(`Error ${status === 'approved' ? 'approving' : 'rejecting'} series:`, error)
+      console.error('Error updating status:', error)
       toast({
         title: 'Error',
-        description: `Failed to ${status === 'approved' ? 'approve' : 'reject'} series`,
+        description: 'Failed to update status',
         variant: 'destructive',
       })
     } finally {
@@ -211,32 +229,51 @@ export default function SeriesPage() {
   }
 
   const updateSeries = async () => {
-    if (!selectedSeries) return
-    
     try {
-      setProcessingId(selectedSeries.id)
+      setProcessingId(selectedSeries?.id || 'updating')
       
-      const { error } = await supabaseAdmin
-        .from('series')
-        .update({ 
+      // Generate a slug from the name
+      const slug = formData.name
+        .toLowerCase()
+        .replace(/[^\w\s]/gi, '')
+        .replace(/\s+/g, '-')
+      
+      // Use the API route instead of direct supabaseAdmin access
+      const response = await fetch('/api/admin/series', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: selectedSeries?.id,
           name: formData.name,
+          slug,
           description: formData.description,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', selectedSeries.id)
+          status: selectedSeries?.status,
+        }),
+      })
       
-      if (error) throw error
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update series')
+      }
+      
+      const updatedSeries = await response.json()
       
       // Update local state
-      setSeriesList(seriesList.map(series => 
-        series.id === selectedSeries.id 
-          ? { 
-              ...series, 
-              name: formData.name,
-              description: formData.description 
-            } 
-          : series
-      ))
+      setSeriesList(prev => 
+        prev.map(series => 
+          series.id === selectedSeries?.id 
+            ? { 
+                ...series, 
+                name: formData.name,
+                slug,
+                description: formData.description,
+                updated_at: new Date().toISOString()
+              } 
+            : series
+        )
+      )
       
       toast({
         title: 'Series Updated',
@@ -266,37 +303,43 @@ export default function SeriesPage() {
         .replace(/[^\w\s]/gi, '')
         .replace(/\s+/g, '-')
       
-      const { data, error } = await supabaseAdmin
-        .from('series')
-        .insert({ 
+      // Use the API route instead of direct supabaseAdmin access
+      const response = await fetch('/api/admin/series', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           name: formData.name,
           slug,
           description: formData.description,
-          status: 'approved', // Auto-approve when created by admin
-          created_by: 'system', // This would normally be the user ID
-        })
-        .select()
+          created_by: user?.id, // Use the current user's ID
+        }),
+      })
       
-      if (error) throw error
-      
-      if (data && data.length > 0) {
-        // Add to local state
-        setSeriesList([
-          {
-            ...data[0],
-            articleCount: 0,
-            profiles: null
-          },
-          ...seriesList,
-        ])
-        
-        toast({
-          title: 'Series Created',
-          description: 'The new series has been created successfully',
-        })
-        
-        setIsNewDialogOpen(false)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create series')
       }
+      
+      const data = await response.json()
+      
+      // Add to local state
+      setSeriesList([
+        {
+          ...data,
+          articleCount: 0,
+          profiles: null
+        },
+        ...seriesList,
+      ])
+      
+      toast({
+        title: 'Series Created',
+        description: 'The new series has been created successfully',
+      })
+      
+      setIsNewDialogOpen(false)
     } catch (error) {
       console.error('Error creating series:', error)
       toast({
