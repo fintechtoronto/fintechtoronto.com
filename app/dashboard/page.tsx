@@ -151,15 +151,13 @@ export default function DashboardPage() {
     
     loadDashboardData();
   }, [user, authLoading]);
-  
+
   // Show loading state if either auth is loading or dashboard data is loading
   if (authLoading || (loading && !error)) {
     return (
-      <div className="container py-10">
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
-          <p className="text-muted-foreground">Loading dashboard...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-primary"></div>
+        <p className="text-muted-foreground">Loading dashboard...</p>
       </div>
     );
   }
@@ -167,15 +165,13 @@ export default function DashboardPage() {
   // If auth is complete but no user is found, show auth error
   if (!authLoading && !user) {
     return (
-      <div className="container py-10">
-        <div className="bg-destructive/10 text-destructive p-4 rounded-md mb-6">
-          <h2 className="text-lg font-medium mb-2">Authentication Error</h2>
-          <p>You must be signed in to view this page.</p>
-          <div className="mt-4">
-            <Link href="/auth/login">
-              <Button variant="outline">Sign In</Button>
-            </Link>
-          </div>
+      <div className="bg-destructive/10 text-destructive p-4 rounded-md mb-6">
+        <h2 className="text-lg font-medium mb-2">Authentication Error</h2>
+        <p>You must be signed in to view this page.</p>
+        <div className="mt-4">
+          <Link href="/auth/login">
+            <Button variant="outline">Sign In</Button>
+          </Link>
         </div>
       </div>
     );
@@ -184,366 +180,204 @@ export default function DashboardPage() {
   // Show error message if there was an error loading data
   if (error) {
     return (
-      <div className="container py-10">
-        <div className="bg-destructive/10 text-destructive p-4 rounded-md mb-6">
-          <h2 className="text-lg font-medium mb-2">Error</h2>
-          <p>{error}</p>
-          <p className="mt-2 text-sm">Please try refreshing the page or contact support if the issue persists.</p>
-        </div>
+      <div className="bg-destructive/10 text-destructive p-4 rounded-md mb-6">
+        <h2 className="text-lg font-medium mb-2">Error</h2>
+        <p>{error}</p>
+        <p className="mt-2 text-sm">Please try refreshing the page or contact support if the issue persists.</p>
       </div>
     );
   }
-  
+
   // Get user's first name safely
   const firstName = user?.user_metadata?.full_name 
     ? user.user_metadata.full_name.split(' ')[0] 
-    : userProfile?.full_name 
-      ? userProfile.full_name.split(' ')[0]
-      : 'Author';
-  
-  const handleRoleApplicationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    if (!user || !applicationReason.trim()) return;
-    
-    try {
-      setIsSubmittingApplication(true);
-      
-      const response = await fetch('/api/admin-request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          reason: applicationReason,
-          requestedRole: 'moderator',
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: "Application Submitted",
-          description: "Your moderator application has been submitted for review.",
-        });
-        setHasPendingApplication(true);
-        setIsApplyingForRole(false);
-        setApplicationReason('');
-      } else {
-        if (response.status === 400 && data.message?.includes('pending request')) {
-          toast({
-            title: "Application Already Exists",
-            description: "You already have a pending application. We'll review it soon!",
-            variant: "destructive",
-          });
-          setHasPendingApplication(true);
-        } else {
-          toast({
-            title: "Error",
-            description: data.error || "Failed to submit application",
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error submitting role application:', error);
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingApplication(false);
-    }
-  };
+    : userProfile?.full_name?.split(' ')[0] 
+    || 'there';
 
   return (
-    <div className="container py-10">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {firstName}!
-          </p>
-        </div>
-        
-        {!onboardingCompleted && (
-          <OnboardingProgressTracker />
-        )}
-        
-        {/* Role status card */}
-        <div className="w-full">
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Welcome back, {firstName}!</h1>
+        <p className="text-muted-foreground">Here's an overview of your activity and content.</p>
+      </div>
+
+      {!onboardingCompleted && user && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Complete Your Profile</CardTitle>
+            <CardDescription>
+              Take a few minutes to set up your profile and get the most out of your experience.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <OnboardingProgressTracker />
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Articles</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.articlesCount}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.publishedCount} published, {stats.draftCount} drafts
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Role Status</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold capitalize">{userRole}</div>
+            {userRole === 'user' && !hasPendingApplication && (
+              <Button
+                variant="link"
+                className="h-auto p-0 text-xs text-muted-foreground"
+                onClick={() => setIsApplyingForRole(true)}
+              >
+                Apply for contributor role
+              </Button>
+            )}
+            {hasPendingApplication && (
+              <p className="text-xs text-muted-foreground">
+                Application pending review
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Link href="/dashboard/new-article">
+              <Button className="w-full justify-between" variant="outline">
+                Create New Article
+                <PenSquare className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/dashboard/articles">
+              <Button className="w-full justify-between" variant="outline">
+                View All Articles
+                <BookText className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+            <Link href="/dashboard/settings/profile">
+              <Button className="w-full justify-between" variant="outline">
+                Edit Profile
+                <UserCheck className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {isApplyingForRole && user && (
           <Card>
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  Your Role & Access
-                </CardTitle>
-                {userRole !== 'user' && (
-                  <div className="flex items-center px-3 py-1 rounded-full bg-primary/20 text-sm font-medium">
-                    <span className="mr-2 capitalize">{userRole}</span>
-                    <Shield className="h-4 w-4" />
-                  </div>
-                )}
-              </div>
+            <CardHeader>
+              <CardTitle>Apply for Contributor Role</CardTitle>
               <CardDescription>
-                Your current permissions and role on the platform
+                Tell us why you'd like to become a contributor
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {userRole === 'user' ? (
-                  <div className="flex flex-col gap-3">
-                    <p className="text-sm text-muted-foreground">
-                      You currently have a standard user account. Want to contribute more to FintechToronto?
-                    </p>
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                if (!applicationReason.trim()) {
+                  toast({
+                    title: "Error",
+                    description: "Please provide a reason for your application",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                
+                setIsSubmittingApplication(true);
+                
+                try {
+                  const { error } = await supabase
+                    .from('admin_requests')
+                    .insert([
+                      {
+                        user_id: user.id,
+                        request_type: 'role_upgrade',
+                        status: 'pending',
+                        details: {
+                          current_role: userRole,
+                          requested_role: 'contributor',
+                          reason: applicationReason
+                        }
+                      }
+                    ]);
                     
-                    {hasPendingApplication ? (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-3 rounded-md text-sm flex items-start gap-3">
-                        <Clock className="h-5 w-5 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-medium">Application under review</p>
-                          <p className="mt-1">Your application to become a community moderator is being reviewed. We'll notify you when there's an update.</p>
-                        </div>
-                      </div>
-                    ) : isApplyingForRole ? (
-                      <form onSubmit={handleRoleApplicationSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="reason">
-                            Why do you want to be a moderator?
-                          </Label>
-                          <Textarea 
-                            id="reason"
-                            value={applicationReason}
-                            onChange={(e) => setApplicationReason(e.target.value)}
-                            placeholder="Tell us about yourself and why you'd be a good fit for reviewing and approving content..."
-                            className="min-h-[120px]"
-                            required
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            type="submit" 
-                            disabled={isSubmittingApplication || !applicationReason.trim()}
-                          >
-                            {isSubmittingApplication && (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            )}
-                            Submit Application
-                          </Button>
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setIsApplyingForRole(false)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    ) : (
-                      <div className="flex flex-wrap gap-3">
-                        <Button 
-                          onClick={() => setIsApplyingForRole(true)}
-                          className="gap-2"
-                        >
-                          <UserCheck className="h-4 w-4" />
-                          Apply to be a Moderator
-                        </Button>
-                      </div>
-                    )}
+                  if (error) throw error;
+                  
+                  toast({
+                    title: "Application Submitted",
+                    description: "We'll review your application and get back to you soon.",
+                  });
+                  
+                  setIsApplyingForRole(false);
+                  setHasPendingApplication(true);
+                  setApplicationReason('');
+                } catch (error) {
+                  console.error('Error submitting application:', error);
+                  toast({
+                    title: "Error",
+                    description: "Failed to submit application. Please try again.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsSubmittingApplication(false);
+                }
+              }}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reason">Application Reason</Label>
+                    <Textarea
+                      id="reason"
+                      placeholder="Tell us about your experience and why you'd like to contribute..."
+                      value={applicationReason}
+                      onChange={(e) => setApplicationReason(e.target.value)}
+                      className="min-h-[100px]"
+                    />
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 p-3 bg-primary/10 rounded-md">
-                      <UserCheck className="h-5 w-5 text-primary mt-0.5" />
-                      <div>
-                        <p className="font-medium">
-                          You're a <span className="capitalize">{userRole}</span>
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {userRole === 'moderator' 
-                            ? 'You can review and approve content submitted by other users.' 
-                            : userRole === 'admin'
-                            ? 'You have administrative privileges to manage the platform.' 
-                            : userRole === 'author'
-                            ? 'You can publish articles directly without approval.'
-                            : userRole === 'contributor'
-                            ? 'You can contribute articles for review and publication.'
-                            : userRole === 'superadmin'
-                            ? 'You have full access to all platform features and settings.'
-                            : 'You have additional permissions on the platform.'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <Link href="/admin" className="inline-block">
-                      <Button variant="outline" className="gap-2">
-                        <Shield className="h-4 w-4" />
-                        {userRole === 'superadmin' || userRole === 'admin' 
-                          ? 'Go to Admin Dashboard'
-                          : 'Go to Moderator Area'}
-                      </Button>
-                    </Link>
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setIsApplyingForRole(false);
+                        setApplicationReason('');
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmittingApplication}
+                    >
+                      {isSubmittingApplication && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Submit Application
+                    </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              </form>
             </CardContent>
           </Card>
-        </div>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <DashboardCard 
-            title="Total Articles" 
-            value={stats.articlesCount} 
-            description="All your articles" 
-            icon={<FileText className="h-4 w-4 text-muted-foreground" />}
-          />
-          <DashboardCard 
-            title="Published" 
-            value={stats.publishedCount} 
-            description="Live on the site" 
-            icon={<BookText className="h-4 w-4 text-muted-foreground" />}
-          />
-          <DashboardCard 
-            title="Draft" 
-            value={stats.draftCount} 
-            description="Work in progress" 
-            icon={<PenSquare className="h-4 w-4 text-muted-foreground" />}
-          />
-          <DashboardCard 
-            title="Views" 
-            value={0} 
-            description="Coming soon" 
-            icon={<BarChart2 className="h-4 w-4 text-muted-foreground" />}
-          />
-        </div>
-        
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-6">
-          <Card className="md:col-span-4">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your recent articles and engagement</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {stats.articlesCount > 0 ? (
-                <div className="space-y-8">
-                  <Tabs defaultValue="articles" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="articles">Your Articles</TabsTrigger>
-                      <TabsTrigger value="engagement">Engagement</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="articles" className="space-y-4">
-                      <div className="rounded-md border">
-                        <div className="p-4">
-                          <h3 className="text-lg font-medium">Coming Soon</h3>
-                          <p className="text-sm text-muted-foreground">
-                            We're working on a comprehensive activity dashboard.
-                          </p>
-                        </div>
-                      </div>
-                    </TabsContent>
-                    <TabsContent value="engagement" className="space-y-4">
-                      <div className="rounded-md border">
-                        <div className="p-4">
-                          <h3 className="text-lg font-medium">Coming Soon</h3>
-                          <p className="text-sm text-muted-foreground">
-                            This feature is under development.
-                          </p>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No articles yet</h3>
-                  <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                    Share your insights with the Toronto fintech community by writing your first article.
-                  </p>
-                  <Link href="/dashboard/new-article">
-                    <Button>Write Your First Article</Button>
-                  </Link>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link href="/dashboard/new-article" className="flex items-center w-full">
-                <Button variant="outline" className="w-full justify-start">
-                  <PenSquare className="mr-2 h-4 w-4" />
-                  New Article
-                </Button>
-              </Link>
-              <Link href="/dashboard/articles" className="flex items-center w-full">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  My Articles
-                </Button>
-              </Link>
-              <Link href="/dashboard/settings/profile" className="flex items-center w-full">
-                <Button variant="outline" className="w-full justify-start">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Edit Profile
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Request Role Upgrade */}
-        <div className="flex flex-col gap-2 mt-6">
-          <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
-            <div className="p-6">
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold">Want to contribute more?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Apply for a role upgrade to get additional permissions
-                  </p>
-                </div>
-                <Link href="/dashboard/request-role">
-                  <Button>
-                    Request Role
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
-  )
-}
-
-function DashboardCard({ title, value, description, icon }: { 
-  title: string, 
-  value: number, 
-  description: string,
-  icon: React.ReactNode
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
-          {title}
-        </CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
-  )
+  );
 } 

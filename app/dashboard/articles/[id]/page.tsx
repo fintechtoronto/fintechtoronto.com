@@ -31,13 +31,26 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 
+// Define PortableTextBlock types to match RichTextEditor
+type PortableTextMark = 'strong' | 'em' | 'code' | 'link'
+
+type PortableTextBlock = {
+  _type: string
+  style?: string
+  children: {
+    _type: string
+    text: string
+    marks?: PortableTextMark[]
+  }[]
+}
+
 type ArticleStatus = 'draft' | 'submitted' | 'published' | 'rejected'
 
 export default function EditArticlePage() {
   const [article, setArticle] = useState<Article | null>(null)
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
-  const [content, setContent] = useState('')
+  const [content, setContent] = useState<string | PortableTextBlock[]>('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -287,6 +300,11 @@ export default function EditArticlePage() {
     }
   }
 
+  const handleRichTextChange = (portableTextContent: PortableTextBlock[]) => {
+    // Store the PortableTextBlock[] directly
+    setContent(portableTextContent);
+  };
+
   if (authLoading || loading) {
     return <div className="container py-16 text-center">Loading...</div>
   }
@@ -402,7 +420,7 @@ export default function EditArticlePage() {
                   <label htmlFor="content" className="text-sm font-medium">
                     Content
                   </label>
-                  <RichTextEditor content={content} onChange={setContent} />
+                  <RichTextEditor content={content} onChange={handleRichTextChange} />
                 </div>
 
                 {error && <p className="text-sm text-red-500">{error}</p>}

@@ -43,6 +43,19 @@ import { Progress } from "@/components/ui/progress"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/hooks/use-toast"
 
+// Define PortableTextBlock types to match RichTextEditor
+type PortableTextMark = 'strong' | 'em' | 'code' | 'link'
+
+type PortableTextBlock = {
+  _type: string
+  style?: string
+  children: {
+    _type: string
+    text: string
+    marks?: PortableTextMark[]
+  }[]
+}
+
 type Series = {
   id: string;
   name: string;
@@ -53,7 +66,7 @@ type Series = {
 export default function NewArticlePage() {
   const [title, setTitle] = useState('')
   const [summary, setSummary] = useState('')
-  const [content, setContent] = useState('<p>Start writing your article here...</p>')
+  const [content, setContent] = useState<string | PortableTextBlock[]>('<p>Start writing your article here...</p>')
   const [seriesList, setSeriesList] = useState<Series[]>([])
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null)
   const [newSeriesName, setNewSeriesName] = useState('')
@@ -214,6 +227,11 @@ export default function NewArticlePage() {
       setIsUploading(false)
     }
   }
+
+  const handleRichTextChange = (portableTextContent: PortableTextBlock[]) => {
+    // Store the PortableTextBlock[] directly
+    setContent(portableTextContent);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>, status: 'draft' | 'submitted') => {
     e.preventDefault()
@@ -480,7 +498,7 @@ export default function NewArticlePage() {
                   <label htmlFor="content" className="text-sm font-medium">
                     Content
                   </label>
-                  <RichTextEditor content={content} onChange={setContent} />
+                  <RichTextEditor content={content} onChange={handleRichTextChange} />
                 </div>
               </CardContent>
             </Card>

@@ -74,10 +74,20 @@ async function getAllSeries() {
 }
 
 export const revalidate = 3600 // Revalidate every hour
+export const dynamic = 'force-dynamic'
 
 export default async function BlogPage() {
-  const posts = await getBlogPosts()
-  const allSeries = await getAllSeries()
+  let posts = [];
+  let allSeries = [];
+  
+  try {
+    // Fetch data with error handling
+    posts = await getBlogPosts() || [];
+    allSeries = await getAllSeries() || [];
+  } catch (error) {
+    console.error('Error fetching blog data from Sanity:', error);
+    // Continue with empty arrays
+  }
   
   // Group posts by series
   const postsBySeries: Record<string, any[]> = {}

@@ -22,10 +22,167 @@ import {
   Redo,
 } from 'lucide-react'
 
+type PortableTextMark = 'strong' | 'em' | 'code' | 'link'
+
+type PortableTextBlock = {
+  _type: string
+  style?: string
+  children: {
+    _type: string
+    text: string
+    marks?: PortableTextMark[]
+  }[]
+}
+
 type RichTextEditorProps = {
-  content: string
-  onChange: (content: string) => void
+  content: PortableTextBlock[] | string
+  onChange: (content: PortableTextBlock[]) => void
   placeholder?: string
+}
+
+// Convert HTML to Portable Text
+function htmlToPortableText(html: string): PortableTextBlock[] {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  const blocks: PortableTextBlock[] = []
+
+  function processNode(node: Node): PortableTextBlock | null {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+      return {
+        _type: 'block',
+        style: 'normal',
+        children: [{
+          _type: 'span',
+          text: node.textContent
+        }]
+      }
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as HTMLElement
+      const block: PortableTextBlock = {
+        _type: 'block',
+        children: []
+      }
+
+      // Handle block styles
+      switch (element.tagName.toLowerCase()) {
+        case 'h1':
+          block.style = 'h1'
+          break
+        case 'h2':
+          block.style = 'h2'
+          break
+        case 'h3':
+          block.style = 'h3'
+          break
+        case 'p':
+          block.style = 'normal'
+          break
+        case 'blockquote':
+          block.style = 'blockquote'
+          break
+        case 'pre':
+          block.style = 'code'
+          break
+        default:
+          block.style = 'normal'
+      }
+
+      // Process child nodes
+      element.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
+          const span = {
+            _type: 'span',
+            text: child.textContent,
+            marks: [] as PortableTextMark[]
+          }
+
+          // Handle marks
+          if (element.tagName.toLowerCase() === 'strong' || element.tagName.toLowerCase() === 'b') {
+            span.marks = ['strong']
+          } else if (element.tagName.toLowerCase() === 'em' || element.tagName.toLowerCase() === 'i') {
+            span.marks = ['em']
+          } else if (element.tagName.toLowerCase() === 'code') {
+            span.marks = ['code']
+          } else if (element.tagName.toLowerCase() === 'a') {
+            span.marks = ['link']
+            // You might want to store the href somewhere
+          }
+
+          block.children.push(span)
+        } else {
+          const childBlock = processNode(child)
+          if (childBlock) {
+            block.children.push(...childBlock.children)
+          }
+        }
+      })
+
+      if (block.children.length > 0) {
+        return block
+      }
+    }
+
+    return null
+  }
+
+  doc.body.childNodes.forEach(node => {
+    const block = processNode(node)
+    if (block) {
+      blocks.push(block)
+    }
+  })
+
+  return blocks
+}
+
+// Convert Portable Text to HTML
+function portableTextToHtml(blocks: PortableTextBlock[]): string {
+  return blocks.map(block => {
+    const content = block.children.map(child => {
+      let text = child.text
+
+      // Apply marks
+      if (child.marks) {
+        child.marks.forEach(mark => {
+          switch (mark) {
+            case 'strong':
+              text = `<strong>${text}</strong>`
+              break
+            case 'em':
+              text = `<em>${text}</em>`
+              break
+            case 'code':
+              text = `<code>${text}</code>`
+              break
+            case 'link':
+              // You might want to handle href here
+              text = `<a href="#">${text}</a>`
+              break
+          }
+        })
+      }
+
+      return text
+    }).join('')
+
+    // Apply block style
+    switch (block.style) {
+      case 'h1':
+        return `<h1>${content}</h1>`
+      case 'h2':
+        return `<h2>${content}</h2>`
+      case 'h3':
+        return `<h3>${content}</h3>`
+      case 'blockquote':
+        return `<blockquote>${content}</blockquote>`
+      case 'code':
+        return `<pre><code>${content}</code></pre>`
+      default:
+        return `<p>${content}</p>`
+    }
+  }).join('\n')
 }
 
 export default function RichTextEditor({
@@ -34,6 +191,9 @@ export default function RichTextEditor({
   placeholder = 'Start writing your article...',
 }: RichTextEditorProps) {
   const [isMounted, setIsMounted] = useState(false)
+
+  // Convert initial content if it's Portable Text
+  const initialContent = typeof content === 'string' ? content : portableTextToHtml(content)
 
   const editor = useEditor({
     extensions: [
@@ -48,7 +208,7 @@ export default function RichTextEditor({
         allowBase64: true,
       }),
     ],
-    content,
+    content: initialContent,
     editorProps: {
       attributes: {
         class:
@@ -56,7 +216,10 @@ export default function RichTextEditor({
       },
     },
     onUpdate({ editor }: { editor: Editor }) {
-      onChange(editor.getHTML())
+      // Convert HTML to Portable Text before calling onChange
+      const html = editor.getHTML()
+      const portableText = htmlToPortableText(html)
+      onChange(portableText)
     },
   })
 
