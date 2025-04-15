@@ -9,35 +9,49 @@ import EventCountdown from './countdown'
 
 export const revalidate = 3600 // Revalidate every hour
 
+// Add dynamic flag to enable fallback to client-side rendering if static generation fails
+export const dynamic = 'force-dynamic';
+
 async function getEvent(slug: string) {
-  return client.fetch(
-    groq`*[_type == "event" && slug.current == $slug][0] {
-      _id,
-      title,
-      description,
-      date,
-      location,
-      link,
-      slug,
-      eventType,
-      maxAttendees,
-      calId,
-      mainImage
-    }`,
-    { slug }
-  )
+  try {
+    return await client.fetch(
+      groq`*[_type == "event" && slug.current == $slug][0] {
+        _id,
+        title,
+        description,
+        date,
+        location,
+        link,
+        slug,
+        eventType,
+        maxAttendees,
+        calId,
+        mainImage
+      }`,
+      { slug }
+    )
+  } catch (error) {
+    console.error(`Error fetching event with slug "${slug}":`, error);
+    return null;
+  }
 }
 
 export async function generateStaticParams() {
-  const events = await client.fetch(
-    groq`*[_type == "event" && defined(slug.current)] {
-      "slug": slug.current
-    }`
-  )
-  
-  return events.map((event: { slug: string }) => ({
-    slug: event.slug,
-  }))
+  try {
+    const events = await client.fetch(
+      groq`*[_type == "event" && defined(slug.current)] {
+        "slug": slug.current
+      }`
+    )
+    
+    return events.map((event: { slug: string }) => ({
+      slug: event.slug,
+    }))
+  } catch (error) {
+    console.error('Error fetching event slugs:', error);
+    // Return empty array to prevent build failure
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {

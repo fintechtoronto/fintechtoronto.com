@@ -83,22 +83,22 @@ export default function Header() {
               </Button>
             </>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <div className="relative" ref={dropdownRef}>
                 <button 
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input hover:bg-accent hover:text-accent-foreground transition-colors relative"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-input hover:bg-accent hover:text-accent-foreground transition-colors relative h-9"
                   onClick={() => setIsOpen(!isOpen)}
                 >
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-6 w-6">
                     {user?.user_metadata?.avatar_url ? (
                       <AvatarImage src={user.user_metadata.avatar_url} alt={user?.user_metadata?.full_name || 'User'} />
                     ) : (
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                         {getInitials(user?.user_metadata?.full_name)}
                       </AvatarFallback>
                     )}
                   </Avatar>
-                  <span className="hidden md:inline-block font-medium">
+                  <span className="hidden md:inline-block text-sm font-medium">
                     {user?.user_metadata?.full_name?.split(' ')[0] || 'Account'}
                   </span>
                   <ChevronDown className="h-4 w-4 hidden md:inline-block" />
@@ -176,7 +176,7 @@ export default function Header() {
               </div>
               
               <Button 
-                className="hidden md:inline-flex gap-1"
+                className="hidden md:inline-flex gap-1 h-9"
                 variant="outline" 
                 size="sm" 
                 onClick={() => handleNavigate('/dashboard/new-article')}

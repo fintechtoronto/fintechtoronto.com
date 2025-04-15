@@ -39,38 +39,48 @@ function getSeriesTheme(title: string): string {
 }
 
 async function getBlogPosts() {
-  return client.fetch(
-    groq`*[_type == "blog"] | order(publishDate desc) {
-      _id,
-      title,
-      slug,
-      publishDate,
-      excerpt,
-      image,
-      series->{
+  try {
+    return await client.fetch(
+      groq`*[_type == "blog"] | order(publishDate desc) {
+        _id,
         title,
-        slug
-      },
-      authors[]->{
-        name,
         slug,
-        image
-      }
-    }`
-  )
+        publishDate,
+        excerpt,
+        image,
+        series->{
+          title,
+          slug
+        },
+        authors[]->{
+          name,
+          slug,
+          image
+        }
+      }`
+    )
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
 }
 
 async function getAllSeries() {
-  return client.fetch(
-    groq`*[_type == "series"] {
-      _id,
-      title,
-      description,
-      slug,
-      coverImage,
-      "articleCount": count(*[_type == "blog" && references(^._id)])
-    } | order(articleCount desc)`
-  )
+  try {
+    return await client.fetch(
+      groq`*[_type == "series"] {
+        _id,
+        title,
+        description,
+        slug,
+        coverImage,
+        "articleCount": count(*[_type == "blog" && references(^._id)])
+      } | order(articleCount desc)`
+    )
+  } catch (error) {
+    console.error('Error fetching series data:', error);
+    return [];
+  }
 }
 
 export const revalidate = 3600 // Revalidate every hour

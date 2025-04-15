@@ -39,7 +39,7 @@ export default function MobileNav() {
       <Button 
         variant="ghost" 
         size="icon" 
-        className="md:hidden"
+        className="md:hidden h-9 w-9 flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
       >
         <Menu className="h-5 w-5" />

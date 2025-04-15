@@ -1,7 +1,7 @@
 ﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static optimization where possible
-  output: 'standalone',
+  // Disable standalone output which causes symlink issues on Windows
+  // output: 'standalone',
   
   // Disable image optimization during development
   images: {
@@ -30,6 +30,15 @@ const nextConfig = {
   webpack: (config) => {
     // Optimize bundle size by ignoring large packages in server components
     config.externals = [...(config.externals || []), 'canvas', 'jsdom'];
+    
+    // Fix for Windows EPERM issues
+    if (process.platform === 'win32') {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    
     return config;
   },
   
@@ -69,6 +78,11 @@ const nextConfig = {
   
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
+  
+  // Disable static rendering for pages with client components that use contexts
+  // This prevents "Cannot read properties of null (reading 'useContext')" errors
+  staticPageGenerationTimeout: 30,
+  poweredByHeader: false,
 };
 
 module.exports = nextConfig;

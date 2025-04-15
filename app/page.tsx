@@ -11,39 +11,56 @@ import { ArticlePlaceholderImage } from '@/components/ui/article-placeholder-ima
 import { SeriesBadge } from '@/components/ui/series-badge'
 import { ArticleCard } from '@/components/cards/article-card'
 
-async function getHomePageData() {
-  const blogs = await client.fetch(
-    groq`*[_type == "blog"] | order(publishDate desc)[0...3]{
-      _id,
-      title,
-      slug,
-      publishDate,
-      excerpt,
-      image,
-      series->{
-        title,
-        slug
-      },
-      authors[]->{
-        name,
-        slug
-      }
-    }`
-  )
+// Add dynamic flag for client-side rendering fallback
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate every hour
 
-  const events = await client.fetch(
-    groq`*[_type == "event" && dateTime(date) > dateTime(now())] | order(date asc)[0...3]{
-      _id,
-      title,
-      description,
-      date,
-      location,
-      link,
-      slug,
-      featured,
-      eventType
-    }`
-  )
+async function getHomePageData() {
+  let blogs = [];
+  let events = [];
+  
+  try {
+    blogs = await client.fetch(
+      groq`*[_type == "blog"] | order(publishDate desc)[0...3]{
+        _id,
+        title,
+        slug,
+        publishDate,
+        excerpt,
+        image,
+        series->{
+          title,
+          slug
+        },
+        authors[]->{
+          name,
+          slug
+        }
+      }`
+    ) || [];
+  } catch (error) {
+    console.error('Error fetching blog data:', error);
+    // Continue with empty array
+  }
+
+  try {
+    events = await client.fetch(
+      groq`*[_type == "event" && dateTime(date) > dateTime(now())] | order(date asc)[0...3]{
+        _id,
+        title,
+        description,
+        date,
+        location,
+        link,
+        slug,
+        featured,
+        eventType
+      }`
+    ) || [];
+  } catch (error) {
+    console.error('Error fetching event data:', error);
+    // Continue with empty array
+  }
 
   return { blogs, events }
 }
@@ -69,9 +86,13 @@ export default async function Home() {
                   <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-500"></span>
                   Toronto's FinTech & AI Community Hub
                 </div>
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-5xl xl:text-6xl">
-                  Connecting <span className="text-blue-600 dark:text-blue-400">Innovators</span> <br />
-                  <span className="text-blue-600 dark:text-blue-400">Amplifying</span> Toronto's Potential
+                <h1 className="font-bold tracking-tighter text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
+                  <div className="whitespace-normal sm:whitespace-nowrap">
+                    <span className="text-blue-600 dark:text-blue-400">Elevating</span> Fintech Voices
+                  </div>
+                  <div className="whitespace-normal sm:whitespace-nowrap">
+                    Amplifying Toronto's <span className="text-blue-600 dark:text-blue-400">Potential</span>
+                  </div>
                 </h1>
               </div>
               <p className="max-w-[600px] text-gray-600 dark:text-gray-300 md:text-xl">
@@ -85,7 +106,7 @@ export default async function Home() {
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" className="rounded-full border-blue-200 bg-white/50 backdrop-blur-sm dark:border-blue-800 dark:bg-gray-900/50" asChild>
-                  <Link href="/articles">
+                  <Link href="/blog">
                     Explore Articles
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -182,7 +203,7 @@ export default async function Home() {
               <p className="text-muted-foreground max-w-2xl">Insights and analyses from Toronto's fintech industry experts</p>
             </div>
             <Link 
-              href="/articles" 
+              href="/blog" 
               className="mt-6 md:mt-0 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
             >
               View all articles

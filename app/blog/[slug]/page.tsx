@@ -42,31 +42,36 @@ const myPortableTextComponents = {
 }
 
 async function getBlogPost(slug: string) {
-  return client.fetch(
-    groq`*[_type == "blog" && slug.current == $slug][0]{
-      _id,
-      title,
-      slug,
-      publishDate,
-      content,
-      image,
-      excerpt,
-      series->{
+  try {
+    return await client.fetch(
+      groq`*[_type == "blog" && slug.current == $slug][0]{
+        _id,
         title,
         slug,
-        description
-      },
-      authors[]->{
-        _id,
-        name,
-        slug,
+        publishDate,
+        content,
         image,
-        bio
-      },
-      "estimatedReadingTime": round(length(pt::text(content)) / 5 / 180)
-    }`,
-    { slug }
-  )
+        excerpt,
+        series->{
+          title,
+          slug,
+          description
+        },
+        authors[]->{
+          _id,
+          name,
+          slug,
+          image,
+          bio
+        },
+        "estimatedReadingTime": round(length(pt::text(content)) / 5 / 180)
+      }`,
+      { slug }
+    )
+  } catch (error) {
+    console.error(`Error fetching blog post with slug "${slug}":`, error);
+    return null;
+  }
 }
 
 // Generate static params for all blog posts

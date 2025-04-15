@@ -31,26 +31,31 @@ export async function generateStaticParams() {
 export const revalidate = 3600 // Revalidate every hour
 
 async function getSeriesWithArticles(slug: string) {
-  return client.fetch(
-    groq`*[_type == "series" && slug.current == $slug][0]{
-      _id,
-      title,
-      description,
-      "articles": *[_type == "blog" && references(^._id)] | order(publishDate desc) {
+  try {
+    return await client.fetch(
+      groq`*[_type == "series" && slug.current == $slug][0]{
         _id,
         title,
-        slug,
-        publishDate,
-        excerpt,
-        image,
-        authors[]->{
-          name,
-          slug
+        description,
+        "articles": *[_type == "blog" && references(^._id)] | order(publishDate desc) {
+          _id,
+          title,
+          slug,
+          publishDate,
+          excerpt,
+          image,
+          authors[]->{
+            name,
+            slug
+          }
         }
-      }
-    }`,
-    { slug }
-  )
+      }`,
+      { slug }
+    )
+  } catch (error) {
+    console.error(`Error fetching series with slug "${slug}":`, error);
+    return null;
+  }
 }
 
 // Add dynamic routing to avoid build errors
