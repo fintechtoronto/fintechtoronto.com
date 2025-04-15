@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
 // Google Analytics Measurement ID
-const GA_MEASUREMENT_ID = 'G-B0ZQ7G73W8';
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-B0ZQ7G73W8';
 
 // Debug logger for development
 const debugLog = (message: string, data?: any) => {
@@ -34,6 +34,11 @@ export const gtag = (...args: any[]) => {
 export default function GoogleAnalytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  
+  // Skip if measurement ID is not available or in development
+  if (!GA_MEASUREMENT_ID || (process.env.NODE_ENV === 'development' && !process.env.NEXT_PUBLIC_ENABLE_GA_IN_DEV)) {
+    return null;
+  }
   
   // Track page views
   useEffect(() => {

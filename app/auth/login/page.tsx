@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useAuth } from '@/components/auth-provider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 
-export default function LoginPage() {
+// Component that uses useSearchParams
+function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -19,7 +20,7 @@ export default function LoginPage() {
   const { signIn, user } = useAuth()
   
   // Get the redirect path from URL if it exists
-  const redirectPath = searchParams.get('redirect') || '/dashboard'
+  const redirectPath = searchParams ? searchParams.get('redirect') || '/dashboard' : '/dashboard'
   
   // If user is already logged in, redirect them
   useEffect(() => {
@@ -121,4 +122,37 @@ export default function LoginPage() {
       </Card>
     </div>
   )
+}
+
+// Loading fallback 
+function LoginLoading() {
+  return (
+    <div className="container py-16 max-w-md">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+          <CardDescription>
+            Enter your email and password to access your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        </CardContent>
+        <CardFooter>
+          <div className="h-10 bg-gray-200 w-full rounded animate-pulse"></div>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
+  );
 } 

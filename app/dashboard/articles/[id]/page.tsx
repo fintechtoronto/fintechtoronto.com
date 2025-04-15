@@ -48,7 +48,7 @@ export default function EditArticlePage() {
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const params = useParams()
-  const id = params.id as string
+  const id = params ? params.id as string : ''
 
   useEffect(() => {
     if (!authLoading && !user) {

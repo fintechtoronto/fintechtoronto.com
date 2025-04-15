@@ -1,6 +1,10 @@
 import { Analytics as PostHogAnalytics } from './posthog-provider';
 import { GoogleAnalytics4 } from './google-analytics';
 
+// Check if analytics platforms are enabled
+const isPostHogEnabled = typeof process !== 'undefined' && !!process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const isGAEnabled = typeof process !== 'undefined' && !!process.env.NEXT_PUBLIC_GA_ID;
+
 /**
  * Unified Analytics API that sends events to both PostHog and Google Analytics 4
  */
@@ -11,11 +15,19 @@ export const Analytics = {
    * @param properties Properties to send with the event
    */
   track: (eventName: string, properties?: Record<string, any>) => {
-    // Track in PostHog
-    PostHogAnalytics.track(eventName, properties);
-    
-    // Track in Google Analytics 4
-    GoogleAnalytics4.event(eventName, properties);
+    try {
+      // Track in PostHog
+      if (isPostHogEnabled) {
+        PostHogAnalytics.track(eventName, properties);
+      }
+      
+      // Track in Google Analytics 4
+      if (isGAEnabled) {
+        GoogleAnalytics4.event(eventName, properties);
+      }
+    } catch (error) {
+      console.error('Error tracking event:', error);
+    }
   },
   
   /**
@@ -24,19 +36,33 @@ export const Analytics = {
    * @param traits User properties/traits
    */
   identify: (userId: string, traits?: Record<string, any>) => {
-    // Identify in PostHog
-    PostHogAnalytics.identify(userId, traits);
-    
-    // Set user ID in Google Analytics
-    GoogleAnalytics4.setUser(userId);
+    try {
+      // Identify in PostHog
+      if (isPostHogEnabled) {
+        PostHogAnalytics.identify(userId, traits);
+      }
+      
+      // Set user ID in Google Analytics
+      if (isGAEnabled) {
+        GoogleAnalytics4.setUser(userId);
+      }
+    } catch (error) {
+      console.error('Error identifying user:', error);
+    }
   },
   
   /**
    * Reset the current user (typically used on logout)
    */
   reset: () => {
-    // Reset in PostHog
-    PostHogAnalytics.reset();
+    try {
+      // Reset in PostHog
+      if (isPostHogEnabled) {
+        PostHogAnalytics.reset();
+      }
+    } catch (error) {
+      console.error('Error resetting user:', error);
+    }
   },
   
   /**
@@ -44,8 +70,14 @@ export const Analytics = {
    * @param properties The properties to register
    */
   register: (properties: Record<string, any>) => {
-    // Only available in PostHog
-    PostHogAnalytics.register(properties);
+    try {
+      // Only available in PostHog
+      if (isPostHogEnabled) {
+        PostHogAnalytics.register(properties);
+      }
+    } catch (error) {
+      console.error('Error registering properties:', error);
+    }
   },
   
   /**
@@ -54,9 +86,15 @@ export const Analytics = {
    * @param title The page title
    */
   pageview: (url: string, title?: string) => {
-    // Page views are handled automatically in the providers,
-    // but this can be used for manual tracking if needed
-    GoogleAnalytics4.pageview(url, title);
+    try {
+      // Page views are handled automatically in the providers,
+      // but this can be used for manual tracking if needed
+      if (isGAEnabled) {
+        GoogleAnalytics4.pageview(url, title);
+      }
+    } catch (error) {
+      console.error('Error tracking pageview:', error);
+    }
   }
 };
 

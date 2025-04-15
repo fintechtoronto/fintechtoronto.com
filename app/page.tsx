@@ -7,6 +7,9 @@ import NewsletterSignup from '@/components/NewsletterSignup'
 import { ArrowRight, Calendar, ArrowUpRight, MapPin, Clock } from 'lucide-react'
 import { Newsletter } from "@/components/Newsletter"
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient'
+import { ArticlePlaceholderImage } from '@/components/ui/article-placeholder-image'
+import { SeriesBadge } from '@/components/ui/series-badge'
+import { ArticleCard } from '@/components/cards/article-card'
 
 async function getHomePageData() {
   const blogs = await client.fetch(
@@ -15,6 +18,7 @@ async function getHomePageData() {
       title,
       slug,
       publishDate,
+      excerpt,
       image,
       series->{
         title,
@@ -44,7 +48,9 @@ async function getHomePageData() {
   return { blogs, events }
 }
 
-export default function Home() {
+export default async function Home() {
+  const { blogs, events } = await getHomePageData();
+  
   return (
     <>
       {/* Hero Section */}
@@ -184,63 +190,33 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="group relative h-full">
-                <Card className="h-full transition-all duration-300 bg-card hover:shadow-lg overflow-hidden">
-                  <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <HoverBorderGradient
-                      containerClassName="absolute inset-0 rounded-xl"
-                      className="hidden"
-                      duration={1.5}
-                      as="div"
-                    />
-                  </div>
-                  <div className="aspect-video w-full bg-card relative overflow-hidden">
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="inline-flex items-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-1.5 text-xs font-medium border border-border/40">
-                        {i === 1 ? "Open Banking" : i === 2 ? "AI in Fintech" : "Blockchain"}
-                      </span>
-                    </div>
-                  </div>
-                  <CardHeader className="p-6 pb-2">
-                    <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                          <span className="text-xs font-semibold">FT</span>
-                        </div>
-                        <span className="text-sm text-muted-foreground">FinTech Toronto</span>
-                        <span className="text-sm text-muted-foreground">•</span>
-                        <span className="text-sm text-muted-foreground">Apr {i+5}, 2024</span>
-                      </div>
-                      <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
-                        {i === 1 
-                          ? "The Future of Open Banking in Canada: Opportunities and Challenges" 
-                          : i === 2 
-                            ? "How AI is Transforming Risk Assessment in Lending" 
-                            : "Blockchain Applications for Real Estate Tokenization"}
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="px-6 py-3 flex-grow">
-                    <p className="text-muted-foreground line-clamp-3">
-                      {i === 1 
-                        ? "Exploring how open banking initiatives are reshaping financial services in Canada and what it means for consumers and businesses." 
-                        : i === 2 
-                          ? "An in-depth look at how machine learning models are revolutionizing credit scoring and loan approval processes." 
-                          : "Discover how blockchain technology is creating new investment opportunities through fractional ownership of real estate assets."}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="border-t px-6 py-4 mt-auto">
-                    <Button variant="ghost" className="px-0 hover:bg-transparent hover:text-primary" asChild>
-                      <Link href={`/articles/${i}`} className="flex items-center font-medium">
-                        Read article 
-                        <ArrowRight className="ml-1.5 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-            ))}
+            {blogs.map((blog: any, index: number) => {
+              // Choose a theme based on index or series
+              const themes = ['green', 'purple', 'blue', 'amber', 'indigo'];
+              const theme = blog.series ? 
+                blog.series.title.toLowerCase().includes('ai') ? 'purple' :
+                blog.series.title.toLowerCase().includes('banking') ? 'green' :
+                blog.series.title.toLowerCase().includes('blockchain') ? 'blue' :
+                themes[index % themes.length] : 
+                themes[index % themes.length];
+                
+              return (
+                <ArticleCard
+                  key={blog._id}
+                  title={blog.title}
+                  slug={blog.slug.current}
+                  image={blog.image ? urlFor(blog.image).url() : undefined}
+                  publishDate={blog.publishDate}
+                  authors={blog.authors}
+                  series={blog.series ? {
+                    title: blog.series.title,
+                    slug: blog.series.slug.current
+                  } : undefined}
+                  theme={theme as any}
+                  withHoverEffect={true}
+                />
+              );
+            })}
           </div>
         </section>
 
@@ -353,9 +329,9 @@ export default function Home() {
             <Link 
               href="https://lu.ma/fintechto" 
               className="mt-6 md:mt-0 group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+          target="_blank"
+          rel="noopener noreferrer"
+        >
               View all community events
               <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:translate-y-[-2px] transition-transform" />
             </Link>
@@ -531,7 +507,7 @@ export default function Home() {
                       as="div"
                     />
                   </div>
-                  <Image 
+          <Image
                     src="/images/toronto-fintech.jpg" 
                     alt="Toronto Fintech Ecosystem" 
                     width={600} 
@@ -551,7 +527,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </div>
+    </div>
     </>
   )
 }

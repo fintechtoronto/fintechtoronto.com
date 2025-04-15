@@ -67,3 +67,5 @@ logs
 
 # Cal.com API keys and credentials
 cal_credentials.json
+
+.env.local

@@ -67,10 +67,10 @@ export default function SubmissionDetailPage() {
   const [processing, setProcessing] = useState(false)
   
   useEffect(() => {
-    if (params.id) {
+    if (params && params.id) {
       fetchSubmission(params.id as string)
     }
-  }, [params.id])
+  }, [params?.id])
   
   const fetchSubmission = async (id: string) => {
     try {

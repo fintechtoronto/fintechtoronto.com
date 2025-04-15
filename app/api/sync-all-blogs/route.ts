@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { adminClient as sanityClient, groq } from '@/lib/sanity'
 
+// Mark this route as dynamic since it uses request.url
+export const dynamic = 'force-dynamic'
+
 // This is a utility endpoint to manually sync all existing blog posts
 // from Sanity to Supabase. Use it when you first set up the integration.
 export async function GET(request: Request) {

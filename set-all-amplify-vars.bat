@@ -1,0 +1,10 @@
+@echo off
+echo Setting all AWS Amplify environment variables at once...
+
+set APP_ID=d190wfj1muggnx
+set PROFILE=kabadigital
+set REGION=us-east-1
+
+aws amplify update-app --app-id %APP_ID% --environment-variables "{\"NEXT_PUBLIC_SANITY_PROJECT_ID\":\"4zr8bnt8\",\"SANITY_API_TOKEN\":\"sk_sanity_token_value\",\"NEXT_PUBLIC_SUPABASE_URL\":\"https://fintoronto.supabase.co\",\"NEXT_PUBLIC_SUPABASE_ANON_KEY\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\",\"SUPABASE_SERVICE_ROLE_KEY\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.serviceRole\",\"NOVU_API_KEY\":\"novu_api_key_123456\",\"NEXT_PUBLIC_POSTHOG_KEY\":\"phc_posthogkeyvalue\",\"NEXT_PUBLIC_POSTHOG_HOST\":\"https://us.i.posthog.com\",\"NEXT_PUBLIC_CLOUDFRONT_URL\":\"https://d1kqhqtkvy9vds.cloudfront.net\",\"NEXT_PUBLIC_S3_BUCKET_NAME\":\"fintoronto-media\",\"AMPLIFY_DIFF_DEPLOY\":\"false\",\"AMPLIFY_DIFF_DEPLOY_ROOT\":\".next\"}" --profile %PROFILE% --region %REGION%
+
+echo All environment variables have been updated in the Amplify app. 
