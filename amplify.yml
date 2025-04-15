@@ -12,7 +12,26 @@ frontend:
         - pnpm install --frozen-lockfile
         # Setup AWS CLI configuration for S3/CloudFront access
         - echo "Configuring AWS CLI for media storage access..."
-        - 'bash -c "scripts/amplify-prebuild.sh || echo \"⚠️ Warning: Pre-build script failed but continuing...\""'
+        # Use inline commands instead of the shell script to avoid permission issues
+        - echo "Verifying environment variables..."
+        - |
+          if [ ! -z "$KABADIGITAL_ACCESS_KEY_ID" ] && [ ! -z "$KABADIGITAL_SECRET_ACCESS_KEY" ]; then
+            echo "Setting up AWS credentials for media storage..."
+            mkdir -p ~/.aws
+            cat > ~/.aws/credentials << EOL
+          [kabadigital]
+          aws_access_key_id=${KABADIGITAL_ACCESS_KEY_ID}
+          aws_secret_access_key=${KABADIGITAL_SECRET_ACCESS_KEY}
+          EOL
+            cat > ~/.aws/config << EOL
+          [profile kabadigital]
+          region=us-east-1
+          output=json
+          EOL
+            echo "AWS credentials configured successfully."
+          else
+            echo "⚠️ Warning: AWS credentials for media storage not set"
+          fi
         # Set environment variables for the build
         - echo "Creating .env file..."
         - 'bash -c "env | grep -e NEXT_PUBLIC_ -e SUPABASE_ -e SANITY_ -e NOVU_ -e KABADIGITAL_ -e GA_ > .env.production || true"'
